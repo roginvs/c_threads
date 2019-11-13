@@ -5,9 +5,10 @@
 
 void *worker(int id)
 {
-    printf("Thread started\n");
-    sleep(1);
-    printf("My id = %i\n", id);
+    printf("Thread id=%i started\n", id);
+    int randomTime = rand() % 3;
+    usleep(100 + 100 * randomTime);
+    printf("Thread id=%i finished\n", id);
     return NULL;
 }
 
