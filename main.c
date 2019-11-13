@@ -56,11 +56,14 @@ int main(int argc, char *argv[])
 
     pthread_mutex_t m_input;
     pthread_mutex_t m_output;
-
     pthread_mutex_init(&m_input, NULL);
     pthread_mutex_init(&m_output, NULL);
 
+    pthread_cond_t cond_output;
+    pthread_cond_init(&cond_output, NULL);
+
     pthread_mutex_lock(&m_input);
+    pthread_mutex_lock(&m_output);
 
     pthread_t *t = (pthread_t *)malloc(sizeof(pthread_t) * threads_count);
     printf("Hello world\n");
@@ -80,6 +83,17 @@ int main(int argc, char *argv[])
     printf("Threads created, workers will pickup tasks\n");
     pthread_mutex_unlock(&m_input);
 
+    while (1)
+    {
+        pthread_cond_wait(&cond_output, &m_output);
+        if (currentReadyIndex >= totalLength)
+        {
+            break;
+        }
+    };
+
+    pthread_mutex_unlock(&m_output);
+
     for (int i = 0; i < threads_count; i++)
     {
         pthread_join(t[i], NULL);
@@ -88,6 +102,7 @@ int main(int argc, char *argv[])
     pthread_mutex_destroy(&m_input);
     pthread_mutex_destroy(&m_output);
 
+    pthread_cond_destroy(&cond_output);
     printf("Done\n");
 
     free(t);
