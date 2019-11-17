@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+#include "./gzip.c";
 /*
 
 gcc -o main.out main.c -lpthread && ./main.out
