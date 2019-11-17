@@ -10,6 +10,8 @@
 
 gcc -o main.out main.c -lpthread && ./main.out test/hpmor_ru.html /tmp/a && (cat /tmp/a | xxd)
 
+gcc -o main.out main.c -lpthread && ./main.out /tmp/kek /tmp/kek.gz && (cat /tmp/kek.gz | xxd)
+
 */
 
 void writer(char *buf, int32_t len, void *user_data)

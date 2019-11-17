@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 
 typedef void (*write_handler)(char *buf, int32_t len, void *user_data);
 
@@ -28,10 +29,12 @@ int32_t BLOCK_LEN = 128 * 1024;
 
 char *compress_chunk(char *buf, int32_t len, int32_t *outlen)
 {
-    char *out = (char *)malloc(len + 5);
+    *outlen = len + 5;
+    char *out = (char *)malloc(*outlen);
     out[0] = 0;
     *(int32_t *)(out + 1) = len;
-    memcpy(out, buf, len);
+    memcpy(out + 5, buf, len);
+
     return out;
 };
 
@@ -60,7 +63,8 @@ void *worker(void *params)
         printf("Thread id=%i picked up chunk=%i\n", info->id, chunk_id);
 
         int32_t outlen;
-        char *out = compress_chunk((char *)(info->input_buf + BLOCK_LEN * chunk_id), BLOCK_LEN, &outlen);
+        int32_t chunk_length = chunk_id != info->total_blocks_count - 1 ? BLOCK_LEN : info->input_buf_len - BLOCK_LEN * chunk_id;
+        char *out = compress_chunk((char *)(info->input_buf + BLOCK_LEN * chunk_id), chunk_length, &outlen);
 
         printf("Thread id=%i done chunk=%i\n", info->id, chunk_id);
         pthread_mutex_lock(info->m_worker_is_allowed_to_write);
@@ -126,7 +130,7 @@ void gzip(char *input_buf, int32_t input_buf_len, int32_t threads_count, write_h
     printf("Threads created, workers will pickup tasks\n");
     pthread_mutex_unlock(&m_current_free_index);
 
-    printf("Writing header");
+    printf("Writing header\n");
     char *header = malloc(10);
     header[0] = 0x1f; //ID1
     header[1] = 0x8b; //ID2
