@@ -168,7 +168,7 @@ void gzip(char *input_buf, int32_t input_buf_len, int32_t threads_count, write_h
     printf("Writing footer\n");
     char *footer = malloc(8);
     crc32(input_buf, input_buf_len, (int32_t *)(footer));
-    footer[1] = input_buf_len;
+    footer[4] = input_buf_len;
     write(footer, 8, write_user_data);
     free(footer);
 
