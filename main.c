@@ -21,8 +21,16 @@ struct WorkerInfo
     pthread_cond_t *cond_worker_is_allowed_to_write;
     int *worker_is_allowed_to_write;
 
-    // TODO: Write callback
+    void (*write)(char *buf, int len, void *user_data);
+    void *user_data;
 };
+
+void writer(char *buf, int len, void *user_data)
+{
+    printf("Writer is called len=%i\n", len);
+    // TODO: Implement writing
+    usleep(1000000);
+}
 
 void *worker(void *params)
 {
@@ -59,7 +67,10 @@ void *worker(void *params)
             pthread_cond_wait(info->cond_worker_is_allowed_to_write, info->m_worker_is_allowed_to_write);
         };
         printf("Thread id=%i writing to output chunk=%i\n", info->id, chunk_id);
-        usleep(1000000 + 333000 * randomTime);
+
+        // TODO: Write a real buf
+        info->write(NULL, chunk_id, info->user_data);
+
         *info->worker_is_allowed_to_write += 1;
         pthread_mutex_unlock(info->m_worker_is_allowed_to_write);
         pthread_cond_broadcast(info->cond_worker_is_allowed_to_write);
@@ -102,6 +113,8 @@ int main(int argc, char *argv[])
         params->worker_is_allowed_to_write = &worker_is_allowed_to_write;
         params->m_worker_is_allowed_to_write = &m_worker_is_allowed_to_write;
         params->cond_worker_is_allowed_to_write = &cond_worker_is_allowed_to_write;
+        params->write = &writer;
+        params->user_data = NULL;
         pthread_create(&threads[i], NULL, &worker, (void *)params);
     };
 
