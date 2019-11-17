@@ -2,25 +2,37 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <stdint.h>
 
-typedef void (*write_handler)(char *buf, int len, void *user_data);
+typedef void (*write_handler)(char *buf, int32_t len, void *user_data);
 
 struct WorkerInfo
 {
-    int id;
-    int total_blocks_count;
-    int input_buf_len;
+    int32_t id;
+    int32_t total_blocks_count;
+    int32_t input_buf_len;
     char *input_buf;
 
-    int *current_free_index;
+    int32_t *current_free_index;
     pthread_mutex_t *m_current_free_index;
 
     pthread_mutex_t *m_worker_is_allowed_to_write;
     pthread_cond_t *cond_worker_is_allowed_to_write;
-    int *worker_is_allowed_to_write;
+    int32_t *worker_is_allowed_to_write;
 
     write_handler write;
     void *user_data;
+};
+
+int32_t BLOCK_LEN = 128 * 1024;
+
+char *compress_chunk(char *buf, int32_t len, int32_t *outlen)
+{
+    char *out = (char *)malloc(len + 5);
+    out[0] = 0;
+    *(int32_t *)(out + 1) = len;
+    memcpy(out, buf, len);
+    return out;
 };
 
 void *worker(void *params)
@@ -31,7 +43,7 @@ void *worker(void *params)
 
     while (1)
     {
-        int chunk_id = -1;
+        int32_t chunk_id = -1;
         pthread_mutex_lock(info->m_current_free_index);
         if (*info->current_free_index < info->total_blocks_count)
         {
@@ -47,8 +59,8 @@ void *worker(void *params)
 
         printf("Thread id=%i picked up chunk=%i\n", info->id, chunk_id);
 
-        int randomTime = rand() % 3;
-        usleep(1000000 + 100000 * randomTime);
+        int32_t outlen;
+        char *out = compress_chunk((char *)(info->input_buf + BLOCK_LEN * chunk_id), BLOCK_LEN, &outlen);
 
         printf("Thread id=%i done chunk=%i\n", info->id, chunk_id);
         pthread_mutex_lock(info->m_worker_is_allowed_to_write);
@@ -60,7 +72,8 @@ void *worker(void *params)
         printf("Thread id=%i writing to output chunk=%i\n", info->id, chunk_id);
 
         // TODO: Write a real buf
-        info->write(NULL, 0, info->user_data);
+        info->write(out, outlen, info->user_data);
+        free(out);
 
         *info->worker_is_allowed_to_write += 1;
         pthread_mutex_unlock(info->m_worker_is_allowed_to_write);
@@ -68,16 +81,14 @@ void *worker(void *params)
     };
 }
 
-int BLOCK_LEN = 128 * 1024;
-
-void gzip(char *input_buf, int input_buf_len, int threads_count, write_handler write, void *write_user_data)
+void gzip(char *input_buf, int32_t input_buf_len, int32_t threads_count, write_handler write, void *write_user_data)
 {
-    int total_blocks_count = input_buf_len / BLOCK_LEN + (input_buf_len % BLOCK_LEN == 0 ? 0 : 1);
-    printf("Starting gzip len=%i blocks_count=%i", input_buf_len, total_blocks_count);
+    int32_t total_blocks_count = input_buf_len / BLOCK_LEN + (input_buf_len % BLOCK_LEN == 0 ? 0 : 1);
+    printf("Starting gzip len=%i blocks_count=%i\n", input_buf_len, total_blocks_count);
 
-    int current_free_index = 0;
+    int32_t current_free_index = 0;
 
-    int worker_is_allowed_to_write = 0;
+    int32_t worker_is_allowed_to_write = 0;
 
     pthread_mutex_t m_current_free_index;
     pthread_mutex_t m_worker_is_allowed_to_write;
@@ -95,7 +106,7 @@ void gzip(char *input_buf, int input_buf_len, int threads_count, write_handler w
     struct WorkerInfo *threads_params = (struct WorkerInfo *)malloc(sizeof(struct WorkerInfo) * threads_count);
 
     printf("Creating threads\n");
-    for (int i = 0; i < threads_count; i++)
+    for (int32_t i = 0; i < threads_count; i++)
     {
         struct WorkerInfo *params = &threads_params[i];
         params->id = i;
@@ -143,7 +154,7 @@ void gzip(char *input_buf, int input_buf_len, int threads_count, write_handler w
     pthread_mutex_unlock(&m_worker_is_allowed_to_write);
 
     printf("Now joining threads\n");
-    for (int i = 0; i < threads_count; i++)
+    for (int32_t i = 0; i < threads_count; i++)
     {
         pthread_join(threads[i], NULL);
     }
