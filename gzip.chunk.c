@@ -1,6 +1,13 @@
 #include <string.h>
 #include <stdint.h>
 
+/**
+ *  TODO: Check len. Block with no compression are not more than 0xFFFF
+ * 
+ *  Output should be byte-aligned. Use empty "no compression" block in the end
+ *   to achieve alignment
+ * 
+ * */
 char *compress_chunk(char *buf, int32_t buf_len, int32_t *outlen, char is_last)
 {
     printf("Compressing chunk len=%i\n", buf_len);
