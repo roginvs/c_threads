@@ -1,5 +1,13 @@
 # Lol
 
+## TODO
+
+- fix format
+- understand crc32, move it to separate thread
+- implement compress_chunk
+
+
+
 ## Windows notes
 
 Docker:
