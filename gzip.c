@@ -9,6 +9,8 @@ struct WorkerInfo
 {
     int id;
     int total_blocks_count;
+    int input_buf_len;
+    char *input_buf;
 
     int *current_free_index;
     pthread_mutex_t *m_current_free_index;
@@ -66,15 +68,16 @@ void *worker(void *params)
     };
 }
 
-void gzip(char *buf, char *len, write_handler write, void *write_user_data)
+int BLOCK_LEN = 128 * 1024;
+
+void gzip(char *input_buf, char input_buf_len, int threads_count, write_handler write, void *write_user_data)
 {
-    int threads_count = 4;
+    int total_blocks_count = input_buf_len / BLOCK_LEN + (input_buf_len % BLOCK_LEN == 0 ? 0 : 1);
+    printf("Starting gzip len=%i blocks_count=%i", input_buf_len, total_blocks_count);
 
     int current_free_index = 0;
 
     int worker_is_allowed_to_write = 0;
-
-    int total_blocks_count = 10;
 
     pthread_mutex_t m_current_free_index;
     pthread_mutex_t m_worker_is_allowed_to_write;
@@ -104,6 +107,8 @@ void gzip(char *buf, char *len, write_handler write, void *write_user_data)
         params->cond_worker_is_allowed_to_write = &cond_worker_is_allowed_to_write;
         params->write = write;
         params->user_data = write_user_data;
+        params->input_buf = input_buf;
+        params->input_buf_len = input_buf_len;
         pthread_create(&threads[i], NULL, &worker, (void *)params);
     };
 
