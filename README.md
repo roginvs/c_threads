@@ -1,5 +1,14 @@
 # Lol
 
+## Windows notes
+
+Docker:
+```
+docker run -v %cd%:/app -ti --name ubuntu ubuntu bash
+```
+
+Use VSCode -> attach to docker
+
 ## Just thoughts
 
 ```python
