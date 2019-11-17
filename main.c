@@ -3,6 +3,12 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+/*
+
+gcc -o main.out main.c -lpthread && ./main.out
+
+*/
+
 struct WorkerInfo
 {
     int id;
@@ -47,13 +53,13 @@ void *worker(void *params)
 
         printf("Thread id=%i done chunk=%i\n", info->id, chunk_id);
         pthread_mutex_lock(info->m_worker_is_allowed_to_write);
-        while (info->worker_is_allowed_to_write != chunk_id)
+        while (*info->worker_is_allowed_to_write != chunk_id)
         {
             pthread_cond_wait(info->cond_worker_is_allowed_to_write, info->m_worker_is_allowed_to_write);
         };
         printf("Thread id=%i writing to output chunk=%i\n", info->id, chunk_id);
         usleep(100 + 33 * randomTime);
-        info->worker_is_allowed_to_write++;
+        *info->worker_is_allowed_to_write += 1;
         pthread_mutex_unlock(info->m_worker_is_allowed_to_write);
         pthread_cond_broadcast(info->cond_worker_is_allowed_to_write);
     };
