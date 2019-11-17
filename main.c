@@ -49,16 +49,17 @@ void *worker(void *params)
         printf("Thread id=%i picked up chunk=%i\n", info->id, chunk_id);
 
         int randomTime = rand() % 3;
-        usleep(100 + 100 * randomTime);
+        usleep(1000000 + 100000 * randomTime);
 
         printf("Thread id=%i done chunk=%i\n", info->id, chunk_id);
         pthread_mutex_lock(info->m_worker_is_allowed_to_write);
         while (*info->worker_is_allowed_to_write != chunk_id)
         {
+            printf("Thread id=%i not my turn to write, chunk_id=%i cur=%i\n", info->id, chunk_id, *info->worker_is_allowed_to_write);
             pthread_cond_wait(info->cond_worker_is_allowed_to_write, info->m_worker_is_allowed_to_write);
         };
         printf("Thread id=%i writing to output chunk=%i\n", info->id, chunk_id);
-        usleep(100 + 33 * randomTime);
+        usleep(1000000 + 333000 * randomTime);
         *info->worker_is_allowed_to_write += 1;
         pthread_mutex_unlock(info->m_worker_is_allowed_to_write);
         pthread_cond_broadcast(info->cond_worker_is_allowed_to_write);
