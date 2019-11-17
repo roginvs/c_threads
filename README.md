@@ -60,3 +60,31 @@ while True:
 
 
 ```
+
+
+## Thoughs
+
+```python
+
+master:
+  lock MutexWorkerWrite
+  createThreads()
+
+
+  unlock MutexWorkerWrite
+  broadcast ConditionWorkerIsAllowedToWrite
+  # Not we need to wait intil worker sets bufs
+
+worker:
+  pickUpTask()
+  doCalculation()
+
+  lock MutexWorkerWrite
+  while (ValueMasterIsReadyToRead !== myId):
+    wait ConditionWorkerIsAllowedToWrite
+  # Here we change output buf
+  # Copy whole thing to output buf
+  # Increase current pending state
+  # Broadcast
+  unlock MutexWorkerWrite
+```
