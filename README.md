@@ -6,7 +6,8 @@
 - implement compress_chunk
   - store len is 0xffff max! split to separate chunks
 
-
+https://tools.ietf.org/html/rfc1951
+https://tools.ietf.org/html/rfc1952
 
 ## Windows notes
 
