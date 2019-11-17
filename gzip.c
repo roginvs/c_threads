@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "./crc32.c"
+
 typedef void (*write_handler)(char *buf, int32_t len, void *user_data);
 
 struct WorkerInfo
@@ -156,6 +158,13 @@ void gzip(char *input_buf, int32_t input_buf_len, int32_t threads_count, write_h
         pthread_cond_wait(&cond_worker_is_allowed_to_write, &m_worker_is_allowed_to_write);
     }
     pthread_mutex_unlock(&m_worker_is_allowed_to_write);
+
+    printf("Writing footer");
+    char *footer = malloc(8);
+    crc32(input_buf, input_buf_len, (int32_t *)(footer));
+    footer[1] = input_buf_len;
+    write(footer, 8, write_user_data);
+    free(footer);
 
     printf("Now joining threads\n");
     for (int32_t i = 0; i < threads_count; i++)
