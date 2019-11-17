@@ -1,13 +1,17 @@
 # Lol
 
-## TODO
+## Plan
 
--   understand crc32, move it to separate thread
--   implement compress_chunk
-    -   store len is 0xffff max! split to separate chunks
+1. Try to use static Huffman in compress_chunk
+2. Add a fake zero-length "no compression" block to achieve byte-align
+3. Checkout CRC32, understand crc merge. If possible, then implement. If hard - then just run CRC in separate thread
+4. Try dynamic Huffman in compress_chunk
+5. Write good README file
 
-https://tools.ietf.org/html/rfc1951
-https://tools.ietf.org/html/rfc1952
+## Links
+
+-   https://tools.ietf.org/html/rfc1951
+-   https://tools.ietf.org/html/rfc1952
 
 ## Windows notes
 
