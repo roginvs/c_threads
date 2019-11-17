@@ -60,7 +60,7 @@ void *worker(void *params)
         printf("Thread id=%i writing to output chunk=%i\n", info->id, chunk_id);
 
         // TODO: Write a real buf
-        info->write(NULL, chunk_id, info->user_data);
+        info->write(NULL, 0, info->user_data);
 
         *info->worker_is_allowed_to_write += 1;
         pthread_mutex_unlock(info->m_worker_is_allowed_to_write);
@@ -114,6 +114,21 @@ void gzip(char *input_buf, int input_buf_len, int threads_count, write_handler w
 
     printf("Threads created, workers will pickup tasks\n");
     pthread_mutex_unlock(&m_current_free_index);
+
+    printf("Writing header");
+    char *header = malloc(10);
+    header[0] = 0x1f; //ID1
+    header[1] = 0x8b; //ID2
+    header[2] = 8;    // Deflate
+    header[3] = 0;    // No flags
+    header[4] = 0;    // TODO time
+    header[5] = 0;    // TODO time
+    header[6] = 0;    // TODO time
+    header[7] = 0;    // TODO time
+    header[8] = 0;    // no XFL
+    header[9] = 3;    // Unix FS
+    write(header, 10, write_user_data);
+    free(header);
 
     printf("Now allowing threads to write\n");
     pthread_mutex_unlock(&m_worker_is_allowed_to_write);

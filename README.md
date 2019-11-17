@@ -5,60 +5,16 @@
 Docker:
 ```
 docker run -v %cd%:/app -ti --name ubuntu ubuntu bash
+apt-get update && apt-get install -y build-essential
 ```
 
 Use VSCode -> attach to docker
 
-## Just thoughts
+## Gzip notes
 
-```python
-
-# Worker:
-doCalculations()
-
-while True:
-  lock masterIsWaitingIndex
-
-  if masterIsWaitingIndex === myId:
-     # put values into ready object
-     unlock masterIsWaitingIndex
-     send workerIsReady
-     exit
-
-  wait masterNewWaiting masterIsWaitingIndex (implit unlock masterIsWaitingIndex)
-     # now masterIsWaitingIndex is locked
-
-
-
-
-
-
-
-
-Master:
-
-lock masterIsWaitingIndex
-masterIsWaitingIndex = 0
-unlock masterIsWaitingIndex
-
-while True:
-  broadcast masterNewWaiting
-
-  lock masterIsWaitingIndex
-
-  wait workerIsReady masterIsWaitingIndex
-  collectResult(masterIsWaitingIndex)
-  masterIsWaitingIndex++
-
-```
-
-```python
-# Worker
-
-
-# Master
-
-
+```raw
+00000000: 1f8b 0800 8c86 d15d 0003 cb4e cde6 0200  .......]...N....
+00000010: a7fd a3e5 0400 0000                      ........
 ```
 
 
