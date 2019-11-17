@@ -27,14 +27,19 @@ struct WorkerInfo
     void *user_data;
 };
 
-int32_t BLOCK_LEN = 128 * 1024;
+int32_t BLOCK_LEN = 64 * 1024;
 
-char *compress_chunk(char *buf, int32_t len, int32_t *outlen)
+char *compress_chunk(char *buf, int32_t buf_len, int32_t *outlen, char is_last)
 {
-    *outlen = len + 5;
+    printf("Compressing chunk len=%i\n", buf_len);
+    *outlen = buf_len + 5;
     char *out = (char *)malloc(*outlen);
-    out[0] = 0;
-    *(int32_t *)(out + 1) = len;
+    out[0] = is_last ? 1 : 0;
+    int16_t len = *(&(buf_len));
+
+    *(int16_t *)(out + 1) = len;
+    *(int16_t *)(out + 3) = 0xffff - len;
+
     memcpy(out + 5, buf, len);
 
     return out;
@@ -65,8 +70,9 @@ void *worker(void *params)
         printf("Thread id=%i picked up chunk=%i\n", info->id, chunk_id);
 
         int32_t outlen;
-        int32_t chunk_length = chunk_id != info->total_blocks_count - 1 ? BLOCK_LEN : info->input_buf_len - BLOCK_LEN * chunk_id;
-        char *out = compress_chunk((char *)(info->input_buf + BLOCK_LEN * chunk_id), chunk_length, &outlen);
+        char is_last = chunk_id == info->total_blocks_count - 1;
+        int32_t chunk_length = is_last ? info->input_buf_len - BLOCK_LEN * chunk_id : BLOCK_LEN;
+        char *out = compress_chunk((char *)(info->input_buf + BLOCK_LEN * chunk_id), chunk_length, &outlen, is_last);
 
         printf("Thread id=%i done chunk=%i\n", info->id, chunk_id);
         pthread_mutex_lock(info->m_worker_is_allowed_to_write);
@@ -159,7 +165,7 @@ void gzip(char *input_buf, int32_t input_buf_len, int32_t threads_count, write_h
     }
     pthread_mutex_unlock(&m_worker_is_allowed_to_write);
 
-    printf("Writing footer");
+    printf("Writing footer\n");
     char *footer = malloc(8);
     crc32(input_buf, input_buf_len, (int32_t *)(footer));
     footer[1] = input_buf_len;
