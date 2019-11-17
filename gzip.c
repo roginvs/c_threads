@@ -3,9 +3,9 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <string.h>
 
 #include "./crc32.c"
+#include "./gzip.chunk.c"
 
 typedef void (*write_handler)(char *buf, int32_t len, void *user_data);
 
@@ -28,22 +28,6 @@ struct WorkerInfo
 };
 
 int32_t BLOCK_LEN = 128 * 1024;
-
-char *compress_chunk(char *buf, int32_t buf_len, int32_t *outlen, char is_last)
-{
-    printf("Compressing chunk len=%i\n", buf_len);
-    *outlen = buf_len + 5;
-    char *out = (char *)malloc(*outlen);
-    out[0] = is_last ? 1 : 0;
-    int16_t len = *(&(buf_len));
-
-    *(int16_t *)(out + 1) = len;
-    *(int16_t *)(out + 3) = 0xffff - len;
-
-    memcpy(out + 5, buf, len);
-
-    return out;
-};
 
 void *worker(void *params)
 {
@@ -83,7 +67,6 @@ void *worker(void *params)
         };
         printf("Thread id=%i writing to output chunk=%i\n", info->id, chunk_id);
 
-        // TODO: Write a real buf
         info->write(out, outlen, info->user_data);
         free(out);
 
