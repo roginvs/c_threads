@@ -2,9 +2,9 @@
 
 ## TODO
 
-- fix format
 - understand crc32, move it to separate thread
 - implement compress_chunk
+  - store len is 0xffff max! split to separate chunks
 
 
 

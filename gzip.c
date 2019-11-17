@@ -27,7 +27,7 @@ struct WorkerInfo
     void *user_data;
 };
 
-int32_t BLOCK_LEN = 64 * 1024;
+int32_t BLOCK_LEN = 128 * 1024;
 
 char *compress_chunk(char *buf, int32_t buf_len, int32_t *outlen, char is_last)
 {
