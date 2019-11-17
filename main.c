@@ -15,12 +15,13 @@ gcc -o main.out main.c -lpthread && ./main.out test/hpmor_ru.html /tmp/aaaaa
 void writer(char *buf, int len, void *user_data)
 {
     printf("Writer is called len=%i\n", len);
-    // TODO: Implement writing
-    usleep(1000000);
+    fwrite(buf, len, 1, (FILE *)user_data);
 }
+
 int main(int argc, char *argv[])
 {
     char *input_file_name = argv[1];
+    char *output_file_name = argv[2];
 
     int threads_count = 4;
 
