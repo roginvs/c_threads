@@ -2,9 +2,9 @@
 
 ## TODO
 
-- understand crc32, move it to separate thread
-- implement compress_chunk
-  - store len is 0xffff max! split to separate chunks
+-   understand crc32, move it to separate thread
+-   implement compress_chunk
+    -   store len is 0xffff max! split to separate chunks
 
 https://tools.ietf.org/html/rfc1951
 https://tools.ietf.org/html/rfc1952
@@ -12,9 +12,10 @@ https://tools.ietf.org/html/rfc1952
 ## Windows notes
 
 Docker:
+
 ```
 docker run -v %cd%:/app -ti --name ubuntu ubuntu bash
-apt-get update && apt-get install -y build-essential xxd  
+apt-get update && apt-get install -y build-essential xxd
 ```
 
 Use VSCode -> attach to docker
@@ -28,11 +29,16 @@ Use VSCode -> attach to docker
 
 4 bytes of data, here is compressed
 cb4e cde6 0200
+          |  byte 1  |  byte 2  |  byte 3  |  byte 4 |  byte 5  |
+1100 1011  0100 1110  1100 1101  1110 0110  0000 0010  0000 0000
+        |_ last block
+      |__ Not a huffman code, so it is "10", which means "static huffman"
 
-1100 1011 0100 1110 1100 1101 1110 0110 0000 0010 0000 0000
+     | byte 1   |  byte 2    |  byte 3   |  byte 4   |  byte 5  |
+10011 011  10010  101 1 0011  011 0 0111  010  00000   000 00000
+   k      |    e     |     k     |    0x10    |  256 eob  |  ???
 
 ```
-
 
 ## Psoudocode notes
 
@@ -44,9 +50,9 @@ master:
 
   unlock MutexWorkerWrite
   broadcast ConditionWorkerIsAllowedToWrite
-  
+
   wait until last block is done
-  
+
 
 worker:
   pickUpTask()
