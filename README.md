@@ -34,7 +34,7 @@ cb4e cde6 0200
 ```
 
 
-## Thoughs
+## Psoudocode notes
 
 ```python
 
@@ -42,10 +42,11 @@ master:
   lock MutexWorkerWrite
   createThreads()
 
-
   unlock MutexWorkerWrite
   broadcast ConditionWorkerIsAllowedToWrite
-  # Not we need to wait intil worker sets bufs
+  
+  wait until last block is done
+  
 
 worker:
   pickUpTask()
