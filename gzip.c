@@ -70,7 +70,7 @@ void *worker(void *params)
 
 int BLOCK_LEN = 128 * 1024;
 
-void gzip(char *input_buf, char input_buf_len, int threads_count, write_handler write, void *write_user_data)
+void gzip(char *input_buf, int input_buf_len, int threads_count, write_handler write, void *write_user_data)
 {
     int total_blocks_count = input_buf_len / BLOCK_LEN + (input_buf_len % BLOCK_LEN == 0 ? 0 : 1);
     printf("Starting gzip len=%i blocks_count=%i", input_buf_len, total_blocks_count);
