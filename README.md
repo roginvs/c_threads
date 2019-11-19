@@ -10,8 +10,8 @@
 
 ## Links
 
--   https://tools.ietf.org/html/rfc1951
--   https://tools.ietf.org/html/rfc1952
+- https://tools.ietf.org/html/rfc1951
+- https://tools.ietf.org/html/rfc1952
 
 ## Windows notes
 
@@ -42,6 +42,34 @@ cb4e cde6 0200
 10011 011  10010  101 1 0011  011 0 0111  010  00000   000 00000
    k      |    e     |     k     |    0x10    |  256 eob  |  ???
 
+```
+
+```raw
+00000000  1f 8b 08 00 6d f4 d3 5d  00 03 cb 4e cd 56 c8 86  |....m..]...N.V..|
+00000010  60 2e 00 be 64 7a 9b 0c  00 00 00                 |`...dz.....|
+
+cb 4e cd 56 c8 86 60 2e 00
+
+'cb 4e cd 56 c8 86 60 2e 00'.split(' ').
+  map(x => parseInt(x, 16).toString(2).padStart(8, '0')).
+  map(x => x.split('').reverse().join('')).
+  join(' ')
+
+// bits reversed
+
+|- last block
+| |- static Huffman
+|
+110 10011  |  011 10010  |  101 10011  |  011 01010  |  000 10011  |  011
+        k        |     e       |      k      |     ' '     |     k       |
+
+00001  |  00 00011 0  |  0111010 0  |  0000000 0
+            |     |   0x10      |    eob      |
+
+0b100+256 = 260
+ extra=0 len=6
+
+00011 = 4 = distance is 4, extra = 0
 ```
 
 ## Psoudocode notes
