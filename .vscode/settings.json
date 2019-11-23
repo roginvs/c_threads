@@ -1,6 +1,8 @@
 {
     "editor.formatOnSave": true,
     "files.associations": {
-        "generic_crc.h": "c"
+        "generic_crc.h": "c",
+        "fcntl.h": "c",
+        "stdint.h": "c"
     }
 }
