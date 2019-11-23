@@ -14,11 +14,13 @@ uint32_t poly = 0x04C11DB7;
 uint32_t _crc32_for_byte(uint8_t byte)
 {
        uint32_t result = 0;
+       // printf("Table value for byte %i\n", byte);
        for (uint8_t i = 0; i < 8; ++i)
        {
               uint8_t bit = (byte >> i) & 1;
               if (bit == 1)
               {
+                     // printf("Bit %i is set\n", i);
                      result = result ^ poly << i;
               };
        };
@@ -67,6 +69,7 @@ gcc -o /tmp/crc crc32-2.c && /tmp/crc
 */
 int main()
 {
+
        if (_crc32_for_byte(0) != 0)
        {
               return 1;
@@ -89,9 +92,9 @@ int main()
               return 5;
        };
 
-       if (_crc32_for_byte(0x40) != (uint32_t)((poly << 7)))
+       if (_crc32_for_byte(0x40) != (uint32_t)((poly << 6)))
        {
-              printf("err 6 %08x %08x", _crc32_for_byte(0x40), (uint32_t)((poly << 7)));
+              printf("err 6 %08x %08x", _crc32_for_byte(0x40), (uint32_t)((poly << 6)));
               return 6;
        };
 
@@ -153,4 +156,5 @@ int main()
        printf("Done\n");
 
        // http://www.sunshine2k.de/coding/javascript/crc/crc_js.html
+       // http://www.sunshine2k.de/articles/coding/crc/understanding_crc.html
 }
