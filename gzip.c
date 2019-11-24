@@ -150,6 +150,7 @@ void gzip(char *input_buf, int32_t input_buf_len, int32_t threads_count, write_h
     }
     pthread_mutex_unlock(&m_worker_is_allowed_to_write);
 
+    printf("All threads are done, calculating crc32 (TODO: use workers and CRC32 combine)\n");
     uint32_t *footer = malloc(8);
     init_table();
     crc32(input_buf, input_buf_len, footer);
