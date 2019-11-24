@@ -10,7 +10,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: install packages
-      run: apt-get update && apt-get install -y build-essential xxd
+      run: sudo apt-get update && sudo apt-get install -y build-essential xxd
     - name: test
       run: ./build-and-test.sh
 
