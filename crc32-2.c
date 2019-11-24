@@ -289,24 +289,20 @@ int main()
               printf("Crc 5 err %08x\n", crc);
               return 1;
        }
-       /*
-       printf("\nKek\n");
-       crc = 0;
-       _clean(data, 8);
-       // 6b
-       // ???
-       // 0x39 - works
-       // 0x40 - not works
-       //    (0x40 = 0b01000000) = 64
-       //   poly = 1 0000 0100 1100 0001 0001 1101 1011 0111
-       data[0] = 0x40;
 
-       poly_reminder(data, 5, &crc);
-
-       printf("Lol %08x\n", crc);
-*/
        printf("Done\n");
 
+       /*
+       In summary:
+
+       - Reflect input bytes
+       - Add 4 zero bytes to input
+       - Xor first 4 input bytes with 0xFF
+       - Perform polynom division
+       - Xor final crc by 0xFFFFFFFF
+       - Reflect all bits (32) in crc
+
+*/
        // http://www.sunshine2k.de/coding/javascript/crc/crc_js.html
        // http://www.sunshine2k.de/articles/coding/crc/understanding_crc.html
 }
