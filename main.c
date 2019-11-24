@@ -17,7 +17,7 @@ gcc -o main.out main.c -lpthread && ./main.out test/hpmor_ru.html /tmp/a && (cat
 
 */
 
-void writer(char *buf, int32_t len, void *user_data)
+void writer(uint8_t *buf, int32_t len, void *user_data)
 {
     printf("Writer is called len=%i\n", len);
     fwrite(buf, len, 1, (FILE *)user_data);
@@ -39,8 +39,8 @@ int main(int argc, char *argv[])
     }
     struct stat sb;
     fstat(fd, &sb);
-    __off_t input_buf_size = sb.st_size;
-    printf("Size: %lu\n", input_buf_size);
+    int32_t input_buf_size = sb.st_size;
+    printf("Size: %i\n", input_buf_size);
 
     unsigned char *input_buf = NULL;
     if (input_buf_size != 0)

@@ -7,14 +7,14 @@
 #include "./crc32.c"
 #include "./gzip.chunk.c"
 
-typedef void (*write_handler)(char *buf, int32_t len, void *user_data);
+typedef void (*write_handler)(uint8_t *buf, int32_t len, void *user_data);
 
 struct WorkerInfo
 {
     int32_t id;
     int32_t total_blocks_count;
     int32_t input_buf_len;
-    char *input_buf;
+    uint8_t *input_buf;
 
     int32_t *current_free_index;
     pthread_mutex_t *m_current_free_index;
@@ -54,11 +54,11 @@ void *worker(void *params)
         printf("Thread id=%i picked up chunk=%i\n", info->id, chunk_id);
 
         int32_t outlen;
-        char is_last = chunk_id == info->total_blocks_count - 1;
+        uint8_t is_last = chunk_id == info->total_blocks_count - 1;
         int32_t chunk_length = is_last ? info->input_buf_len - BLOCK_LEN * chunk_id : BLOCK_LEN;
 
         printf("Thread id=%i range is %i, len=%i\n", info->id, BLOCK_LEN * chunk_id, chunk_length);
-        char *out = compress_chunk((char *)(info->input_buf + BLOCK_LEN * chunk_id), chunk_length, &outlen, is_last);
+        uint8_t *out = compress_chunk((uint8_t *)(info->input_buf + BLOCK_LEN * chunk_id), chunk_length, &outlen, is_last);
 
         printf("Thread id=%i done chunk=%i\n", info->id, chunk_id);
         pthread_mutex_lock(info->m_worker_is_allowed_to_write);
@@ -78,7 +78,7 @@ void *worker(void *params)
     };
 }
 
-void gzip(char *input_buf, int32_t input_buf_len, int32_t threads_count, write_handler write, void *write_user_data)
+void gzip(uint8_t *input_buf, int32_t input_buf_len, int32_t threads_count, write_handler write, void *write_user_data)
 {
     int32_t total_blocks_count = input_buf_len / BLOCK_LEN + (input_buf_len % BLOCK_LEN == 0 ? 0 : 1);
     printf("Starting gzip len=%i blocks_count=%i\n", input_buf_len, total_blocks_count);
@@ -124,7 +124,7 @@ void gzip(char *input_buf, int32_t input_buf_len, int32_t threads_count, write_h
     pthread_mutex_unlock(&m_current_free_index);
 
     printf("Writing header\n");
-    char *header = malloc(10);
+    uint8_t *header = malloc(10);
     header[0] = 0x1f; //ID1
     header[1] = 0x8b; //ID2
     header[2] = 8;    // Deflate

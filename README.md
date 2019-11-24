@@ -1,15 +1,24 @@
 # Эксперименты с реализацией gzip в threads
 
-## Запуск
-```
-gcc -o main.out main.c -lpthread
-./main.out <input file> <output file>
-``` 
+## Сборка и прогон тестов (Linux или Mac)
 
-## Запуск тестов
+```sh
+./build-and-test.sh
 ```
-./test.sh
+
+## Запуск
+
+```sh
+./main.out <input file> <output file>
 ```
+
+## Комментарии для Windows
+
+Т.к. код завязан на 
+
+## Алгоритм работы
+
+
 
 ## Plan
 

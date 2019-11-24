@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdint.h>
 
-char *store_chunk(char *buf, int32_t buf_len, int32_t *outlen, char is_last)
+uint8_t *store_chunk(uint8_t *buf, int32_t buf_len, int32_t *outlen, char is_last)
 {
     // printf("\n\nGzip store chunk input buf_len=%i\n", buf_len);
     int32_t total_gzip_blocks = buf_len / 0xffff + (buf_len % 0xffff == 0 ? 0 : 1);
@@ -13,7 +13,7 @@ char *store_chunk(char *buf, int32_t buf_len, int32_t *outlen, char is_last)
     //  printf("Gzip blocks = %i\n", total_gzip_blocks);
 
     *outlen = total_gzip_blocks * 5 + buf_len;
-    char *out = (char *)malloc(*outlen);
+    uint8_t *out = (uint8_t *)malloc(*outlen);
     //  printf("outlen = %i\n", *outlen);
 
     for (int16_t current_gzip_block = 0; current_gzip_block < total_gzip_blocks; current_gzip_block++)
@@ -43,7 +43,7 @@ char *store_chunk(char *buf, int32_t buf_len, int32_t *outlen, char is_last)
  *   to achieve alignment
  * 
  * */
-char *compress_chunk(char *buf, int32_t buf_len, int32_t *outlen, char is_last)
+uint8_t *compress_chunk(uint8_t *buf, int32_t buf_len, int32_t *outlen, uint8_t is_last)
 {
     return store_chunk(buf, buf_len, outlen, is_last);
 };

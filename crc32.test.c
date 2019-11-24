@@ -190,7 +190,7 @@ int crc32_test()
     }
 
     char data2[] = "Vasilii";
-    crc32(data2, 7, &crc);
+    crc32((uint8_t *)data2, 7, &crc);
     // crc32 <(echo -n 'Vasilii')
     if (crc != 0x2701c6cc)
     {
@@ -198,7 +198,7 @@ int crc32_test()
         return 1;
     }
 
-    crc32(data2, 1, &crc);
+    crc32((uint8_t *)data2, 1, &crc);
     // crc32 <(echo -n 'Vasilii')
     if (crc != 0x500a1b4c)
     {

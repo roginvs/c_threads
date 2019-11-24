@@ -2,7 +2,7 @@
 set -e
 
 echo "==== Running unit tests ===="
-gcc -o test.out test.c
+gcc -Wall -o test.out test.c
 ./test.out
 
 echo ""
@@ -11,7 +11,7 @@ echo ""
 
 echo "Building executable"
 
-gcc -o main.out main.c -lpthread
+gcc -Wall -o main.out main.c -lpthread
 
 
 for fFull in `ls test/*`; do
