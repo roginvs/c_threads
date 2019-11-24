@@ -1,0 +1,16 @@
+name: C/C++ CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: install packages
+      run: apt-get update && apt-get install -y build-essential xxd
+    - name: test
+      run: ./build-and-test.sh
+
