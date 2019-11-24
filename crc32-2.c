@@ -46,8 +46,8 @@ void poly_reminder(const uint8_t *data, uint32_t n_bytes, uint32_t *crc)
 {
        for (uint32_t i = 0; i < n_bytes; i++)
        {
-              // TODO
-              uint8_t shifted_byte = (uint8_t)(*crc >> (8 * 3));
+              uint8_t shifted_byte = *((uint8_t *)(crc) + 3);
+
               uint32_t xoring = table[shifted_byte];
 
               uint8_t next_byte = data[i];
@@ -145,6 +145,7 @@ int main()
               return 1;
        };
 
+       // Plain division
        crc = 0x0;
        _clean(data, 8);
        data[0] = 0x6b; // 6b656b0a
@@ -154,7 +155,41 @@ int main()
        poly_reminder(data, 8, &crc);
        if (crc != 0x5F2FC346)
        {
-              printf("Crc 1 %08x\n", crc);
+              printf("Crc 1 err %08x\n", crc);
+              return 1;
+       }
+
+       // Add final xor
+       crc = 0x0;
+       _clean(data, 8);
+       data[0] = 0x6b; // 6b656b0a
+       data[1] = 0x65;
+       data[2] = 0x6b;
+       data[3] = 0x0a;
+       poly_reminder(data, 8, &crc);
+       crc = crc ^ 0xFFFFFFFF;
+       if (crc != 0xA0D03CB9)
+       {
+              printf("Crc 2 err %08x\n", crc);
+              return 1;
+       }
+
+       // Add "initial value" xoring
+       crc = 0x0;
+       _clean(data, 8);
+       data[0] = 0x6b; // 6b656b0a
+       data[1] = 0x65;
+       data[2] = 0x6b;
+       data[3] = 0x0a;
+       data[0] = data[0] ^ 0xFF;
+       data[1] = data[1] ^ 0xFF;
+       data[2] = data[2] ^ 0xFF;
+       data[3] = data[3] ^ 0xFF;
+       poly_reminder(data, 8, &crc);
+       crc = crc ^ 0xFFFFFFFF;
+       if (crc != 0x67D4E1C2)
+       {
+              printf("Crc 3 err %08x\n", crc);
               return 1;
        }
 
