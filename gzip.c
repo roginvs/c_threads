@@ -150,16 +150,10 @@ void gzip(char *input_buf, int32_t input_buf_len, int32_t threads_count, write_h
     }
     pthread_mutex_unlock(&m_worker_is_allowed_to_write);
 
-    uint8_t *footer = malloc(8);
-    uint32_t crc_value;
+    uint32_t *footer = malloc(8);
     init_table();
-    crc32(input_buf, input_buf_len, &crc_value);
-    printf("CRC value = %08x\n", crc_value);
-    printf("Input len = %08x\n", input_buf_len);
-    *(int32_t *)(footer) = crc_value;
-    *(uint32_t *)((uint8_t *)footer + 4) = input_buf_len;
-    printf("Writing footer input_len=%08x crc=%08x\n", *((uint32_t *)footer + 4), (int32_t *)(footer));
-
+    crc32(input_buf, input_buf_len, footer);
+    footer[1] = input_buf_len;
     write(footer, 8, write_user_data);
     free(footer);
 
