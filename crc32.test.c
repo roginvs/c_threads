@@ -176,6 +176,8 @@ int crc32_test()
         return 1;
     }
 
+    printf("Poly reminder is fine\n");
+
     data[0] = 0x6b; // 6b656b0a
     data[1] = 0x65;
     data[2] = 0x6b;
@@ -210,6 +212,8 @@ int crc32_test()
         printf("Crc 9 err %08x\n", crc);
         return 1;
     }
+
+    printf("crc32 s fine\n");
 
     printf("\n");
     return 0;
