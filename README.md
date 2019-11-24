@@ -14,37 +14,61 @@
 
 ## Комментарии для Windows
 
-Т.к. код завязан на 
+Т.к. код завязан на `pthread` и `mmap`, то самое просто это запускать код в Docker:
 
-## Алгоритм работы
-
-
-
-## Plan
-
-1. Try to use static Huffman in compress_chunk
-2. Add a fake zero-length "no compression" block to achieve byte-align
-3. Checkout CRC32, understand crc merge. If possible, then implement. If hard - then just run CRC in separate thread
-4. Try dynamic Huffman in compress_chunk
-5. Write good README file
-
-## Links
-
-- https://tools.ietf.org/html/rfc1951
-- https://tools.ietf.org/html/rfc1952
-
-## Windows notes
-
-Docker:
-
-```
+```cmd
 docker run -v %cd%:/app -ti --name ubuntu ubuntu bash
 apt-get update && apt-get install -y build-essential xxd
 ```
 
-Use VSCode -> attach to docker
+Можно использовать VSCode remote developing extensions и подключиться прямо в контейнер
 
-## Gzip notes
+## Алгоритм работы
+
+Основная функция `gzip` принимает следующие аргументы:
+
+```C
+void gzip(
+  /** Указатель на входные данные */
+  uint8_t *input_buf,
+  
+  /** Размер входных данных */
+  int32_t input_buf_len,
+  
+  /** Количество потоков */
+  int32_t threads_count,
+  
+  /** Коллбэк для записи кодированных данных */
+  write_handler write,
+
+  /** Произвольный указатель, он будет передан в коллбэк */  
+  void *write_user_data)
+```
+
+Внутри функции создается `threads_count` потоков. Каждый поток самостоятельно разбирает номер блока для себя.
+
+Когда поток закончил, то он ожидает до тех пор, как `worker_is_allowed_to_write` станет равным его номеру блока.
+
+Как только это произошло, поток вызывает коллбэк, увеличивает `worker_is_allowed_to_write` и рассылает всем остальным потокам уведомление что переменная поменялась. После этого поток повторяет свой цикл пока есть несделанные блоки.
+
+Мастер так же ожидает `worker_is_allowed_to_write`. Как только последний блок готов, мастер завершает потоки и дописывает footer.
+
+## CRC32
+
+По-хорошему надо использовать CRC combine методику. На текущий момент CRC считается мастером после того как все потоки завершили. В идеале бы чтобы каждый поток считал CRC32 для себя и затем клал бы его в общую переменную.
+
+## Сжатие
+
+На текущий момент сжатие как таковое не реализованно, используется deflate без сжатия. Предполагается что функция `compress_chunk` будет определять как именно сохранять текущий блок.
+
+## Ссылки
+
+- https://tools.ietf.org/html/rfc1951
+- https://tools.ietf.org/html/rfc1952
+- http://www.sunshine2k.de/coding/javascript/crc/crc_js.html
+- http://www.sunshine2k.de/articles/coding/crc/understanding_crc.html
+
+## Всякие заметки по формату gzip
 
 ```raw
 00000000: 1f8b 0800 8c86 d15d 0003 cb4e cde6 0200  .......]...N....
@@ -92,7 +116,7 @@ cb 4e cd 56 c8 86 60 2e 00
 00011 = 4 = distance is 4, extra = 0
 ```
 
-## Psoudocode notes
+## Заметки на псевдокоде по алкоритму синхронизации потоков
 
 ```python
 

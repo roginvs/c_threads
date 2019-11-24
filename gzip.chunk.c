@@ -37,8 +37,7 @@ uint8_t *store_chunk(uint8_t *buf, int32_t buf_len, int32_t *outlen, char is_las
 }
 
 /**
- *  TODO: Check len. Block with no compression are not more than 0xFFFF
- * 
+ *
  *  Output should be byte-aligned. Use empty "no compression" block in the end
  *   to achieve alignment
  * 
