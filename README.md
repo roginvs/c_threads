@@ -1,4 +1,15 @@
-# Lol
+# Эксперименты с реализацией gzip в threads
+
+## Запуск
+```
+gcc -o main.out main.c -lpthread
+./main.out <input file> <output file>
+``` 
+
+## Запуск тестов
+```
+./test.sh
+```
 
 ## Plan
 

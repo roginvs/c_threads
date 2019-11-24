@@ -150,12 +150,19 @@ void gzip(char *input_buf, int32_t input_buf_len, int32_t threads_count, write_h
     }
     pthread_mutex_unlock(&m_worker_is_allowed_to_write);
 
+    if (input_buf_len == 0)
+    {
+        printf("No blocks, writing zero-length block\n");
+        uint8_t zero_length_block[] = {1, 0, 0, 0xFF, 0xFF};
+        write(zero_length_block, 5, write_user_data);
+    }
+
     printf("All threads are done, calculating crc32 (TODO: use workers and CRC32 combine)\n");
     uint32_t *footer = malloc(8);
     init_table();
     crc32(input_buf, input_buf_len, footer);
     footer[1] = input_buf_len;
-    write(footer, 8, write_user_data);
+    write((uint8_t *)footer, 8, write_user_data);
     free(footer);
 
     printf("Now joining threads\n");
