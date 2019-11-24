@@ -42,20 +42,23 @@ void init_table()
        }
 }
 
-void crc32_no_padding(const uint8_t *data, uint32_t n_bytes, uint32_t *crc)
+void poly_reminder(const uint8_t *data, uint32_t n_bytes, uint32_t *crc)
 {
        for (uint32_t i = 0; i < n_bytes; i++)
        {
+              // TODO
               uint8_t shifted_byte = (uint8_t)(*crc >> (8 * 3));
               uint32_t xoring = table[shifted_byte];
 
               uint8_t next_byte = data[i];
 
+              /*
               printf("i=%i shifted_byte=%02x xoring=%02x next_byte=%02x curCrc=%08x shiftedCrc=%08x nextCrc=%08x\n",
                      i, shifted_byte, xoring, next_byte,
                      *crc,
                      (*crc << 8) | next_byte,
                      ((*crc << 8) | next_byte) ^ xoring);
+*/
 
               *crc = (*crc << 8) | next_byte;
 
@@ -135,28 +138,29 @@ int main()
        uint32_t crc = 0;
        uint8_t data[8] = {0};
        _clean(data, 8);
-       crc32_no_padding(data, 8, &crc);
+       poly_reminder(data, 8, &crc);
        if (crc != 0)
        {
               printf("Err %08x\n", crc);
               return 1;
-       }
+       };
 
-       /*
-       printf("\nKek\n");
-       //crc = 0xFFFFFFFF;
+       crc = 0x0;
        _clean(data, 8);
-       // 6b656b0a
-       data[0] = 0x6b;
+       data[0] = 0x6b; // 6b656b0a
        data[1] = 0x65;
        data[2] = 0x6b;
        data[3] = 0x0a;
-       crc32_no_padding(data, 8, &crc);
-       //crc = crc ^ 0xFFFFFFFF;
+       poly_reminder(data, 8, &crc);
+       if (crc != 0x5F2FC346)
+       {
+              printf("Crc 1 %08x\n", crc);
+              return 1;
+       }
 
        printf("0x6b656b0a crc = %08x\n", crc);
-       */
 
+       /*
        printf("\nKek\n");
        crc = 0;
        _clean(data, 8);
@@ -168,10 +172,10 @@ int main()
        //   poly = 1 0000 0100 1100 0001 0001 1101 1011 0111
        data[0] = 0x40;
 
-       crc32_no_padding(data, 5, &crc);
+       poly_reminder(data, 5, &crc);
 
        printf("Lol %08x\n", crc);
-
+*/
        printf("Done\n");
 
        // http://www.sunshine2k.de/coding/javascript/crc/crc_js.html
