@@ -12,5 +12,5 @@ int main()
         return crc32_test_result;
     };
 
-    printf("All tests done\n");
+        printf("All tests done\n");
 }
