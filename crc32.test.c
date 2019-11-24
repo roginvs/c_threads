@@ -53,7 +53,7 @@ int crc32_test()
        */
     printf("Crc tests are fine\n");
     printf("Creating table\n");
-    init_table();
+    init_crc_table();
     if (table[1] != poly)
     {
         return 1;

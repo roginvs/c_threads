@@ -152,14 +152,14 @@ void gzip(uint8_t *input_buf, int32_t input_buf_len, int32_t threads_count, writ
 
     if (input_buf_len == 0)
     {
-        printf("No blocks, writing zero-length block\n");
+        printf("No input stream, writing zero-length block\n");
         uint8_t zero_length_block[] = {1, 0, 0, 0xFF, 0xFF};
         write(zero_length_block, 5, write_user_data);
     }
 
     printf("All threads are done, calculating crc32 (TODO: use workers and CRC32 combine)\n");
     uint32_t *footer = malloc(8);
-    init_table();
+    init_crc_table();
     crc32(input_buf, input_buf_len, footer);
     footer[1] = input_buf_len;
     write((uint8_t *)footer, 8, write_user_data);

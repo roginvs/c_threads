@@ -53,7 +53,7 @@ uint32_t _crc32_for_byte(uint8_t byte)
        return result;
 }
 
-void init_table()
+void init_crc_table()
 {
        for (uint32_t i = 0; i < 0x100; i++)
        {
