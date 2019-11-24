@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
     char *input_file_name = argv[1];
     char *output_file_name = argv[2];
 
-    int32_t threads_count = 1;
+    int32_t threads_count = 4;
 
     printf("Opening input file %s\n", input_file_name);
     int fd = open(input_file_name, O_RDONLY);
