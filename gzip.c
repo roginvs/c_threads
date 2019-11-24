@@ -56,6 +56,8 @@ void *worker(void *params)
         int32_t outlen;
         char is_last = chunk_id == info->total_blocks_count - 1;
         int32_t chunk_length = is_last ? info->input_buf_len - BLOCK_LEN * chunk_id : BLOCK_LEN;
+
+        printf("Thread id=%i range is %i, len=%i\n", info->id, BLOCK_LEN * chunk_id, chunk_length);
         char *out = compress_chunk((char *)(info->input_buf + BLOCK_LEN * chunk_id), chunk_length, &outlen, is_last);
 
         printf("Thread id=%i done chunk=%i\n", info->id, chunk_id);
@@ -148,10 +150,16 @@ void gzip(char *input_buf, int32_t input_buf_len, int32_t threads_count, write_h
     }
     pthread_mutex_unlock(&m_worker_is_allowed_to_write);
 
-    printf("Writing footer\n");
-    char *footer = malloc(8);
-    crc32(input_buf, input_buf_len, (int32_t *)(footer));
-    footer[4] = input_buf_len;
+    uint8_t *footer = malloc(8);
+    uint32_t crc_value;
+    init_table();
+    crc32(input_buf, input_buf_len, &crc_value);
+    printf("CRC value = %08x\n", crc_value);
+    printf("Input len = %08x\n", input_buf_len);
+    *(int32_t *)(footer) = crc_value;
+    *(uint32_t *)((uint8_t *)footer + 4) = input_buf_len;
+    printf("Writing footer input_len=%08x crc=%08x\n", *((uint32_t *)footer + 4), (int32_t *)(footer));
+
     write(footer, 8, write_user_data);
     free(footer);
 

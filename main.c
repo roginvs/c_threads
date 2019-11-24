@@ -12,6 +12,9 @@ gcc -o main.out main.c -lpthread && ./main.out test/hpmor_ru.html /tmp/a && (cat
 
 gcc -o main.out main.c -lpthread && ./main.out /tmp/kek /tmp/kek.gz && (cat /tmp/kek.gz | xxd)
 
+
+gcc -o main.out main.c -lpthread && ./main.out test/hpmor_ru.html /tmp/a && (cat /tmp/a | gzip -d > 11111)
+
 */
 
 void writer(char *buf, int32_t len, void *user_data)
@@ -25,7 +28,7 @@ int main(int argc, char *argv[])
     char *input_file_name = argv[1];
     char *output_file_name = argv[2];
 
-    int32_t threads_count = 4;
+    int32_t threads_count = 1;
 
     printf("Opening input file %s\n", input_file_name);
     int fd = open(input_file_name, O_RDONLY);
@@ -52,7 +55,7 @@ int main(int argc, char *argv[])
 
     printf("Opening output file %s\n", output_file_name);
     FILE *p_output_file = fopen(output_file_name, "wb");
-    gzip(input_buf, input_buf_size, 4, &writer, p_output_file);
+    gzip(input_buf, input_buf_size, threads_count, &writer, p_output_file);
     fclose(p_output_file);
 
     if (input_buf_size != 0)
