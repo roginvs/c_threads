@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include <stdint.h>
 
+/** Table of bytes with reversed bits */
 uint8_t reverse_bits[] =
     {
         0x00, 0x80, 0x40, 0xC0, 0x20, 0xA0, 0x60, 0xE0, 0x10, 0x90, 0x50, 0xD0, 0x30, 0xB0, 0x70, 0xF0,
@@ -26,6 +27,7 @@ uint8_t reverse_bits[] =
         0x07, 0x87, 0x47, 0xC7, 0x27, 0xA7, 0x67, 0xE7, 0x17, 0x97, 0x57, 0xD7, 0x37, 0xB7, 0x77, 0xF7,
         0x0F, 0x8F, 0x4F, 0xCF, 0x2F, 0xAF, 0x6F, 0xEF, 0x1F, 0x9F, 0x5F, 0xDF, 0x3F, 0xBF, 0x7F, 0xFF};
 
+/** This is crc table. Will be filled using fill_crc_table function */
 uint32_t table[0x100];
 
 uint32_t poly = 0x04C11DB7;
@@ -61,6 +63,7 @@ void init_crc_table()
        }
 }
 
+/** Do a one-byte polynom division */
 void poly_reminder_step(uint8_t next_byte, uint32_t *crc)
 {
        uint8_t shifted_byte = *((uint8_t *)(crc) + 3);
@@ -88,6 +91,7 @@ void poly_reminder(const uint8_t *data, uint32_t n_bytes, uint32_t *crc)
        }
 }
 
+/** Just another memset */
 void _clean(uint8_t *data, uint32_t len)
 {
        for (uint32_t i = 0; i < len; ++i)
@@ -96,6 +100,7 @@ void _clean(uint8_t *data, uint32_t len)
        }
 }
 
+/** Reverse bit in while 32-bit variable */
 uint32_t reflect_int32(uint32_t in)
 {
        uint32_t r = in;
