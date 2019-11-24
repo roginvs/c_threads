@@ -14,14 +14,21 @@ uint32_t poly = 0x04C11DB7;
 uint32_t _crc32_for_byte(uint8_t byte)
 {
        uint32_t result = 0;
+       uint8_t poly_high_byte = *((uint8_t *)&poly + 3);
+
        // printf("Table value for byte %i\n", byte);
        for (uint8_t i = 0; i < 8; ++i)
        {
-              uint8_t bit = (byte >> i) & 1;
+              uint8_t bit_pos = 7 - i;
+
+              uint8_t bit = (byte >> bit_pos) & 1;
+
               if (bit == 1)
               {
                      // printf("Bit %i is set\n", i);
-                     result = result ^ poly << i;
+                     result = result ^ (poly << bit_pos);
+                     // byte = byte ^ (1 << bit_pos); // This can be skipped
+                     byte = byte ^ (poly_high_byte >> (i + 1));
               };
        };
        return result;
@@ -94,19 +101,19 @@ int main()
 
        if (_crc32_for_byte(0x40) != (uint32_t)((0x34867077)))
        {
-              printf("err 6 %08x", _crc32_for_byte(0x40));
+              printf("err 6 %08x\n", _crc32_for_byte(0x40));
               return 6;
        };
 
        if (_crc32_for_byte(0x41) != (uint32_t)((0x30476DC0)))
        {
-              printf("err 7 %08x", _crc32_for_byte(0x40));
+              printf("err 7 %08x\n", _crc32_for_byte(0x40));
               return 7;
        };
 
        if (_crc32_for_byte(0xFF) != (uint32_t)((0xB1F740B4)))
        {
-              printf("err 8 %08x", _crc32_for_byte(0x40));
+              printf("err 8 %08x\n", _crc32_for_byte(0x40));
               return 8;
        };
 
