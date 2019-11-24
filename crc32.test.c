@@ -178,17 +178,7 @@ int crc32_test()
 
     printf("\n");
     return 0;
-    /*
-       In summary:
 
-       - Reflect input bytes
-       - Add 4 zero bytes to input
-       - Xor first 4 input bytes with 0xFF
-       - Perform polynom division
-       - Xor final crc by 0xFFFFFFFF
-       - Reflect all bits (32) in crc
-
-*/
     // http://www.sunshine2k.de/coding/javascript/crc/crc_js.html
     // http://www.sunshine2k.de/articles/coding/crc/understanding_crc.html
 }

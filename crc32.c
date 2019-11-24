@@ -61,17 +61,13 @@ void init_table()
        }
 }
 
-void poly_reminder(const uint8_t *data, uint32_t n_bytes, uint32_t *crc)
+void poly_reminder_step(uint8_t next_byte, uint32_t *crc)
 {
-       for (uint32_t i = 0; i < n_bytes; i++)
-       {
-              uint8_t shifted_byte = *((uint8_t *)(crc) + 3);
+       uint8_t shifted_byte = *((uint8_t *)(crc) + 3);
 
-              uint32_t xoring = table[shifted_byte];
+       uint32_t xoring = table[shifted_byte];
 
-              uint8_t next_byte = data[i];
-
-              /*
+       /*
               printf("i=%i shifted_byte=%02x xoring=%02x next_byte=%02x curCrc=%08x shiftedCrc=%08x nextCrc=%08x\n",
                      i, shifted_byte, xoring, next_byte,
                      *crc,
@@ -79,9 +75,16 @@ void poly_reminder(const uint8_t *data, uint32_t n_bytes, uint32_t *crc)
                      ((*crc << 8) | next_byte) ^ xoring);
 */
 
-              *crc = (*crc << 8) | next_byte;
+       *crc = (*crc << 8) | next_byte;
 
-              *crc = *crc ^ xoring;
+       *crc = *crc ^ xoring;
+}
+void poly_reminder(const uint8_t *data, uint32_t n_bytes, uint32_t *crc)
+{
+       for (uint32_t i = 0; i < n_bytes; i++)
+       {
+              uint8_t next_byte = data[i];
+              poly_reminder_step(next_byte, crc);
        }
 }
 
@@ -110,4 +113,36 @@ uint32_t reflect_int32(uint32_t in)
        *((uint8_t *)(&r) + 1) = *((uint8_t *)(&r) + 2);
        *((uint8_t *)(&r) + 2) = t;
        return r;
+}
+
+void crc32(const uint8_t *data, uint32_t length, uint32_t *crc)
+{
+       /*
+       In summary:
+
+       - Reflect input bytes
+       - Add 4 zero bytes to input
+       - Xor first 4 input bytes with 0xFF
+       - Perform polynom division
+       - Xor final crc by 0xFFFFFFFF
+       - Reflect all bits (32) in crc
+
+*/
+       *crc = 0x0;
+       for (uint32_t i = 0; i < 4 && i < length; i++)
+       {
+              uint8_t next_byte = data[i] ^ 0xFF;
+              poly_reminder_step(next_byte, crc);
+       }
+       for (uint32_t i = 4; i < length; i++)
+       {
+              uint8_t next_byte = data[i];
+              poly_reminder_step(next_byte, crc);
+       };
+       poly_reminder_step(0x00, crc);
+       poly_reminder_step(0x00, crc);
+       poly_reminder_step(0x00, crc);
+       poly_reminder_step(0x00, crc);
+       *crc = *crc ^ 0xFFFFFFFF;
+       *crc = reflect_int32(*crc);
 }
