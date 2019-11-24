@@ -131,18 +131,18 @@ void crc32(const uint8_t *data, uint32_t length, uint32_t *crc)
        *crc = 0x0;
        for (uint32_t i = 0; i < 4 && i < length; i++)
        {
-              uint8_t next_byte = data[i] ^ 0xFF;
+              uint8_t next_byte = reverse_bits[data[i] ^ 0xFF];
               poly_reminder_step(next_byte, crc);
        }
        for (uint32_t i = 4; i < length; i++)
        {
-              uint8_t next_byte = data[i];
+              uint8_t next_byte = reverse_bits[data[i]];
               poly_reminder_step(next_byte, crc);
        };
-       poly_reminder_step(0x00, crc);
-       poly_reminder_step(0x00, crc);
-       poly_reminder_step(0x00, crc);
-       poly_reminder_step(0x00, crc);
+       poly_reminder_step(length <= 3 ? 0xFF : 0x00, crc);
+       poly_reminder_step(length <= 2 ? 0xFF : 0x00, crc);
+       poly_reminder_step(length <= 1 ? 0xFF : 0x00, crc);
+       poly_reminder_step(length <= 0 ? 0xFF : 0x00, crc);
        *crc = *crc ^ 0xFFFFFFFF;
        *crc = reflect_int32(*crc);
 }

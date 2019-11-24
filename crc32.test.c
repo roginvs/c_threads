@@ -176,6 +176,41 @@ int crc32_test()
         return 1;
     }
 
+    data[0] = 0x6b; // 6b656b0a
+    data[1] = 0x65;
+    data[2] = 0x6b;
+    data[3] = 0x0a;
+    crc32(data, 4, &crc);
+    if (crc != 0xE5A3FDA7)
+    {
+        printf("Crc 6 err %08x\n", crc);
+        return 1;
+    }
+
+    char data2[] = "Vasilii";
+    crc32(data2, 7, &crc);
+    // crc32 <(echo -n 'Vasilii')
+    if (crc != 0x2701c6cc)
+    {
+        printf("Crc 7 err %08x\n", crc);
+        return 1;
+    }
+
+    crc32(data2, 1, &crc);
+    // crc32 <(echo -n 'Vasilii')
+    if (crc != 0x500a1b4c)
+    {
+        printf("Crc 8 err %08x\n", crc);
+        return 1;
+    }
+
+    crc32(NULL, 0, &crc);
+    if (crc != 0x0)
+    {
+        printf("Crc 9 err %08x\n", crc);
+        return 1;
+    }
+
     printf("\n");
     return 0;
 
