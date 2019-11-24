@@ -70,32 +70,44 @@ gcc -o /tmp/crc crc32-2.c && /tmp/crc
 int main()
 {
 
-       if (_crc32_for_byte(0) != 0)
+       if (_crc32_for_byte(0) != 0x0)
        {
               return 1;
        };
-       if (_crc32_for_byte(1) != poly)
+       if (_crc32_for_byte(1) != 0x04C11DB7)
        {
               return 2;
        };
-       if (_crc32_for_byte(2) != (uint32_t)(poly << 1))
+       if (_crc32_for_byte(2) != (uint32_t)(0x09823B6E))
        {
               return 4;
        };
-       if (_crc32_for_byte(4) != (uint32_t)(poly << 2))
+       if (_crc32_for_byte(4) != (uint32_t)(0x130476DC))
        {
               return 4;
        };
 
-       if (_crc32_for_byte(5) != (uint32_t)((poly << 2) ^ (poly << 0)))
+       if (_crc32_for_byte(5) != (uint32_t)(0x17C56B6B))
        {
               return 5;
        };
 
-       if (_crc32_for_byte(0x40) != (uint32_t)((poly << 6)))
+       if (_crc32_for_byte(0x40) != (uint32_t)((0x34867077)))
        {
-              printf("err 6 %08x %08x", _crc32_for_byte(0x40), (uint32_t)((poly << 6)));
+              printf("err 6 %08x", _crc32_for_byte(0x40));
               return 6;
+       };
+
+       if (_crc32_for_byte(0x41) != (uint32_t)((0x30476DC0)))
+       {
+              printf("err 7 %08x", _crc32_for_byte(0x40));
+              return 7;
+       };
+
+       if (_crc32_for_byte(0xFF) != (uint32_t)((0xB1F740B4)))
+       {
+              printf("err 8 %08x", _crc32_for_byte(0x40));
+              return 8;
        };
 
        /*
