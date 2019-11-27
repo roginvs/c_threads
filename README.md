@@ -78,6 +78,7 @@ void gzip(
 - https://tools.ietf.org/html/rfc1952
 - http://www.sunshine2k.de/coding/javascript/crc/crc_js.html
 - http://www.sunshine2k.de/articles/coding/crc/understanding_crc.html
+- https://nicst.de/crc.pdf
 
 ## Всякие заметки по формату gzip
 
