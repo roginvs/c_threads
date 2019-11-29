@@ -221,6 +221,8 @@ uint32_t crc32_partial_block(const uint8_t *data, uint32_t block_length, uint32_
        return crc;
 }
 
+uint32_t CRC32_INITIAL = 0x0;
+
 uint32_t crc32_block_combine(uint32_t crc1, uint32_t crc2)
 {
        return crc1 ^ crc2;

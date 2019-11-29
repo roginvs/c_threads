@@ -23,6 +23,7 @@ struct WorkerInfo
     pthread_cond_t *cond_worker_is_allowed_to_write;
     int32_t *worker_is_allowed_to_write;
 
+    int32_t *crc;
     write_handler write;
     void *user_data;
 };
@@ -58,7 +59,9 @@ void *worker(void *params)
         int32_t chunk_length = is_last ? info->input_buf_len - BLOCK_LEN * chunk_id : BLOCK_LEN;
 
         printf("Thread id=%i range is %i, len=%i\n", info->id, BLOCK_LEN * chunk_id, chunk_length);
-        uint8_t *out = compress_chunk((uint8_t *)(info->input_buf + BLOCK_LEN * chunk_id), chunk_length, &outlen, is_last);
+        uint32_t crc_block;
+        uint8_t *out = compress_chunk((uint8_t *)(info->input_buf + BLOCK_LEN * chunk_id), chunk_length, &outlen, &crc_block,
+                                      BLOCK_LEN * chunk_id, is_last ? 0 : info->input_buf_len - BLOCK_LEN * (chunk_id + 1));
 
         printf("Thread id=%i done chunk=%i\n", info->id, chunk_id);
         pthread_mutex_lock(info->m_worker_is_allowed_to_write);
@@ -71,6 +74,8 @@ void *worker(void *params)
 
         info->write(out, outlen, info->user_data);
         free(out);
+
+        info->crc = crc32_block_combine(info->crc, crc_block);
 
         *info->worker_is_allowed_to_write += 1;
         pthread_mutex_unlock(info->m_worker_is_allowed_to_write);
@@ -86,6 +91,8 @@ void gzip(uint8_t *input_buf, int32_t input_buf_len, int32_t threads_count, writ
     int32_t current_free_index = 0;
 
     int32_t worker_is_allowed_to_write = 0;
+
+    int32_t crc = CRC32_INITIAL;
 
     pthread_mutex_t m_current_free_index;
     pthread_mutex_t m_worker_is_allowed_to_write;
@@ -117,6 +124,7 @@ void gzip(uint8_t *input_buf, int32_t input_buf_len, int32_t threads_count, writ
         params->user_data = write_user_data;
         params->input_buf = input_buf;
         params->input_buf_len = input_buf_len;
+        params->crc = &crc;
         pthread_create(&threads[i], NULL, &worker, (void *)params);
     };
 
@@ -138,6 +146,9 @@ void gzip(uint8_t *input_buf, int32_t input_buf_len, int32_t threads_count, writ
     write(header, 10, write_user_data);
     free(header);
 
+    printf("Initializing crc table\n");
+    init_crc_table();
+
     printf("Now allowing threads to write\n");
     pthread_mutex_unlock(&m_worker_is_allowed_to_write);
     pthread_cond_broadcast(&cond_worker_is_allowed_to_write);
@@ -157,10 +168,10 @@ void gzip(uint8_t *input_buf, int32_t input_buf_len, int32_t threads_count, writ
         write(zero_length_block, 5, write_user_data);
     }
 
-    printf("All threads are done, calculating crc32 (TODO: use workers and CRC32 combine)\n");
+    printf("All threads are done\n");
     uint32_t *footer = malloc(8);
-    init_crc_table();
-    footer[0] = crc32(input_buf, input_buf_len);
+
+    footer[0] = crc32_finallize(crc);
     footer[1] = input_buf_len;
     write((uint8_t *)footer, 8, write_user_data);
     free(footer);

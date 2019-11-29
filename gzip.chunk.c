@@ -1,7 +1,8 @@
 #include <string.h>
 #include <stdint.h>
+#include "./crc32.c"
 
-uint8_t *store_chunk(uint8_t *buf, int32_t buf_len, int32_t *outlen, char is_last)
+uint8_t *store_chunk(uint8_t *buf, int32_t buf_len, int32_t *outlen, uint8_t is_last)
 {
     // printf("\n\nGzip store chunk input buf_len=%i\n", buf_len);
     int32_t total_gzip_blocks = buf_len / 0xffff + (buf_len % 0xffff == 0 ? 0 : 1);
@@ -42,7 +43,10 @@ uint8_t *store_chunk(uint8_t *buf, int32_t buf_len, int32_t *outlen, char is_las
  *   to achieve alignment
  * 
  * */
-uint8_t *compress_chunk(uint8_t *buf, int32_t buf_len, int32_t *outlen, uint8_t is_last)
+uint8_t *compress_chunk(uint8_t *buf, int32_t buf_len, int32_t *outlen, int32_t *crc, int32_t bytes_before, int32_t bytes_after)
 {
-    return store_chunk(buf, buf_len, outlen, is_last);
+    uint8_t is_last = bytes_after == 0;
+
+    uint8_t *compressed = store_chunk(buf, buf_len, outlen, is_last);
+    *crc = crc32_partial_block(buf, buf_len, bytes_before, bytes_after);
 };
