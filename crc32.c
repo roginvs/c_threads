@@ -8,27 +8,34 @@ uint32_t poly = 0xEDB88320;
 
 uint32_t _crc32_for_byte(uint8_t byte)
 {
-    uint32_t result = 0;
+       uint32_t result = 0;
 
-    uint8_t poly_high_byte = *((uint8_t *)&poly);
+       uint8_t poly_high_byte = *((uint8_t *)&poly);
 
-   // printf("Table for byte 0x%02x\n", byte);
-    for (uint8_t i = 0; i < 8; ++i)
-    {
+       //  [ ] [ ] [ ] [ ]
 
-        uint8_t bit = (byte >> i) & 1;
+       // printf("Table for byte 0x%02x\n", byte);
 
-        // printf("Bit %i value = %i\n", i, bit);
-        if (bit == 1)
-        {
+       // x^7 is on the zero position
+       // So, starting from zero to 7 means
+       // going through x^7 to x^0
+       for (uint8_t i = 0; i < 8; ++i)
+       {
 
-            result = result ^ (poly >> (7 - i));
-            // byte = byte ^ (1 >> bit_pos); // This can be skipped
-            byte = byte ^ (poly_high_byte << (i + 1));
-        };
-    };
+              uint8_t bit = (byte >> i) & 1;
 
-    return result;
+              // printf("Bit %i value = %i\n", i, bit);
+              if (bit == 1)
+              {
+                     // Move native poly to the left to the 7-i positions
+                     // Which is move right
+                     result = result ^ (poly >> (7 - i));
+                     // byte = byte ^ (1 >> bit_pos); // This can be skipped
+                     byte = byte ^ (poly_high_byte << (i + 1));
+              };
+       };
+
+       return result;
 }
 
 void init_crc_table()
@@ -38,7 +45,6 @@ void init_crc_table()
               table[i] = _crc32_for_byte((uint8_t)i);
        }
 }
-
 
 /** Do a one-byte polynom division */
 void poly_reminder_step(uint8_t next_byte, uint32_t *crc)
@@ -58,6 +64,7 @@ void poly_reminder_step(uint8_t next_byte, uint32_t *crc)
        // Shifting crc with next byte
        *crc = (*crc >> 8) | (next_byte << 24);
 
+       // And then xor with table value from shifted byte
        *crc = *crc ^ xoring;
 }
 void poly_reminder(const uint8_t *data, uint32_t n_bytes, uint32_t *crc)
@@ -68,7 +75,6 @@ void poly_reminder(const uint8_t *data, uint32_t n_bytes, uint32_t *crc)
               poly_reminder_step(next_byte, crc);
        }
 }
-
 
 void crc32(const uint8_t *data, uint32_t length, uint32_t *crc)
 {
