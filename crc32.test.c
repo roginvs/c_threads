@@ -50,16 +50,16 @@ void _clean(uint8_t *data, uint32_t len)
     }
 }
 
-#define assertEqual(a, b, msg)                             \
-                                                           \
-    if (a != b)                                            \
-    {                                                      \
-        printf("\n");                                      \
-        printf("Asserted=0x%08x Obtained=0x%08x\n", b, a); \
-        printf("Error with: ");                            \
-        printf(msg);                                       \
-        printf("\n");                                      \
-        return 100;                                        \
+#define assertEqual(a, b, msg)                                 \
+                                                               \
+    if ((a) != (b))                                            \
+    {                                                          \
+        printf("\n");                                          \
+        printf("Asserted=0x%08x Obtained=0x%08x\n", (b), (a)); \
+        printf("Error with: ");                                \
+        printf(msg);                                           \
+        printf("\n");                                          \
+        return 100;                                            \
     }
 ;
 int crc32_test()
@@ -316,7 +316,7 @@ int crc32_test()
 
     assertEqual(poly_multiple(_reflect_int32(0b10000000 << 24), _reflect_int32(0b1000000)), poly >> 5, "x^31 * x^5");
 
-    assertEqual(poly_multiple(_reflect_int32(0b10000000 << 24), _reflect_int32(0b10000000)), poly >> 6, "x^31 * x^6");
+    assertEqual(poly_multiple(_reflect_int32(0b10000000 << 24), _reflect_int32(0b10000000)), (poly >> 6) ^ poly, "x^31 * x^6");
 
     /*
         a = 0xDEADBEEF = 0b11011110101011011011111011101111;

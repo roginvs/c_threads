@@ -102,7 +102,7 @@ uint32_t poly_multiple(uint32_t a, uint32_t b)
                      // Our window is shifted left now for 31-i items
                      // This means it is already multiplied by x^(31-i)
                      // So, we just adding "a" into window
-                     printf("Adding 'a' to window. Before=0x%08x after=0x%08x\n", window, window ^ a);
+                     printf("  Adding 'a' to window. Before=0x%08x after=0x%08x\n", window, window ^ a);
                      window = window ^ a;
               }
 
@@ -111,10 +111,12 @@ uint32_t poly_multiple(uint32_t a, uint32_t b)
               {
                      // Now prepare for shift
                      uint8_t window_highest_degree_bit = window & 1;
+                     printf("  window=0x%08x shiftedWindow=0x%08x shiftedBit=%i\n", window, window >> 1, window_highest_degree_bit);
                      window = window >> 1;
                      if (window_highest_degree_bit == 1)
                      {
                             window = window ^ poly;
+                            printf("  windowAfterPolyXor=0x%08x\n", window);
                      }
               }
        }
