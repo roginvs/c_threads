@@ -332,6 +332,24 @@ int crc32_test()
                 (poly >> 6) ^ poly ^ poly >> 4 ^ _reflect_int32(0b10000000 << 24 ^ 0b10000000 << 22),
                 "(x^31 + x^29) * (x^6 + 1)");
 
+    assertEqual(poly_multiple(
+                    _reflect_int32(0b10000000000000000),
+                    _reflect_int32(0b10000000000000000)),
+                poly,
+                "x^16 * x^16");
+
+    assertEqual(poly_multiple(
+                    _reflect_int32(0b1000000000000000000000000000000),
+                    _reflect_int32(0b1000000000000000000000000000000)),
+                _reflect_int32(0b11110111000101000010110110100011),
+                "x^30 * x^30");
+
+    assertEqual(poly_multiple(
+                    _reflect_int32(0b10000000000000000000000000000000),
+                    _reflect_int32(0b10000000000000000000000000000000)),
+                _reflect_int32(0b11010001000100111001000001010101),
+                "x^31 * x^31");
+
     /*
         a = 0xDEADBEEF = 0b11011110101011011011111011101111;
         b = 0xBADDCAFE = 0b10111010110111011100101011111110;
@@ -342,15 +360,15 @@ int crc32_test()
         Product =
         111111001110001100111000010110011010000100000010110100001001010
 
-crcPoly = 0b100110000010001110110110111;
+crcPoly = 0b100000100110000010001110110110111;
 
-        Reminder = 0b11101011011001111001011100
+        Reminder = 0b10000100100110001011011010111000
     */
 
     assertEqual(
         poly_multiple(_reflect_int32(0xDEADBEEF),
                       _reflect_int32(0xBADDCAFE)),
-        _reflect_int32(0b11101011011001111001011100),
+        _reflect_int32(0b10000100100110001011011010111000),
         "Scary polynoms");
 
     printf("\n");
