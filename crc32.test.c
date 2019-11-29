@@ -455,6 +455,40 @@ int crc32_test()
             poly_reminder(abc + 8, 2),
         poly_reminder(abc, 10), "Poly parts 4+4+2");
 
+    printf("Testing crc combining\n");
+    data[0] = 0x6b ^ 0xFF; // 6b656b0a
+    data[1] = 0x65 ^ 0xFF;
+    data[2] = 0x6b ^ 0xFF;
+    data[3] = 0x0a ^ 0xFF;
+    // crc == e5a3fda7
+    assertEqual(
+        0xFFFFFFFF ^ poly_multiple(poly_reminder(data, 4), power_of_n(4)), 0xe5a3fda7, "Crc combining 1");
+
+    uint8_t data4[] = "My name is Vasilii!";
+    uint8_t data4_xored[4] = {data4[0] ^ 0xFF, data4[1] ^ 0xFF, data4[2] ^ 0xFF, data4[3] ^ 0xFF};
+
+    assertEqual(
+        0xFFFFFFFF ^
+            poly_multiple(
+                poly_reminder(data4_xored, 4),
+                power_of_n(4)),
+
+        crc32(data4, 4),
+        "Crc combining 2");
+
+    assertEqual(
+        0xFFFFFFFF ^
+
+            poly_multiple(
+                poly_reminder(data4_xored, 4),
+                power_of_n(24 - 4)) ^
+
+            poly_multiple(
+                poly_reminder(data4 + 4, 16),
+                power_of_n(24 - 4 - 16)),
+
+        crc32(data4, 20), "Crc combining 4");
+
     /*
     printf("Testing crc by parts\n");
 
