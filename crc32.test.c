@@ -122,7 +122,7 @@ int crc32_test()
        }
        */
 
-    /*
+    
     printf("Crc tests are fine\n");
     printf("Creating table\n");
     init_crc_table();
@@ -132,6 +132,7 @@ int crc32_test()
     };
     printf("Table done\n");
 
+/*
     uint32_t crc = 0;
     uint8_t data[8] = {0};
     _clean(data, 8);
