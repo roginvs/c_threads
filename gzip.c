@@ -129,7 +129,12 @@ void gzip(uint8_t *input_buf, uint32_t input_buf_len, uint32_t threads_count, wr
         pthread_create(&threads[i], NULL, &worker, (void *)params);
     };
 
-    printf("Threads created, workers will pickup tasks\n");
+    printf("Threads created\n");
+
+    printf("Initializing crc table\n");
+    init_crc_table();
+
+    printf("Now threads will pickup tasks\n");
     pthread_mutex_unlock(&m_current_free_index);
 
     printf("Writing header\n");
@@ -146,9 +151,6 @@ void gzip(uint8_t *input_buf, uint32_t input_buf_len, uint32_t threads_count, wr
     header[9] = 3;    // Unix FS
     write(header, 10, write_user_data);
     free(header);
-
-    printf("Initializing crc table\n");
-    init_crc_table();
 
     printf("Now allowing threads to write\n");
     pthread_mutex_unlock(&m_worker_is_allowed_to_write);
@@ -168,13 +170,12 @@ void gzip(uint8_t *input_buf, uint32_t input_buf_len, uint32_t threads_count, wr
         uint8_t zero_length_block[] = {1, 0, 0, 0xFF, 0xFF};
         write(zero_length_block, 5, write_user_data);
     }
+    // Currently crc combining does not support small files
+    // So, here is small workaround
     crc = input_buf_len > 4 ? crc32_finallize(crc) : crc32(input_buf, input_buf_len);
-
-    // printf("crc is 0x%08x\n", crc);
 
     uint32_t *footer = malloc(8);
 
-    // Currently crc combining does not support small files
     footer[0] = crc;
     footer[1] = input_buf_len;
     write((uint8_t *)footer, 8, write_user_data);
