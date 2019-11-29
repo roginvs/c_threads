@@ -310,9 +310,14 @@ int crc32_test()
 
     assertEqual(poly_multiple(_reflect_int32(0b10000000 << 24), _reflect_int32(0b1)), 0x1, "Multiply by 1");
 
-    assertEqual(poly_multiple(_reflect_int32(0b10000000 << 24), _reflect_int32(0b10)), poly, "Multiply by x");
+    assertEqual(poly_multiple(_reflect_int32(0b10000000 << 24), _reflect_int32(0b10)), poly, "x^31 * x");
 
-  
+    assertEqual(poly_multiple(_reflect_int32(0b10000000 << 24), _reflect_int32(0b100)), poly >> 1, "x^31 * x^2");
+
+    assertEqual(poly_multiple(_reflect_int32(0b10000000 << 24), _reflect_int32(0b1000000)), poly >> 5, "x^31 * x^5");
+
+    assertEqual(poly_multiple(_reflect_int32(0b10000000 << 24), _reflect_int32(0b10000000)), poly >> 6, "x^31 * x^6");
+
     /*
         a = 0xDEADBEEF = 0b11011110101011011011111011101111;
         b = 0xBADDCAFE = 0b10111010110111011100101011111110;
@@ -328,12 +333,11 @@ crcPoly = 0b100110000010001110110110111;
         Reminder = 0b11101011011001111001011100
     */
 
-assertEqual(
-    poly_multiple(_reflect_int32(0xDEADBEEF),
- _reflect_int32(0xBADDCAFE)), 
- _reflect_int32(0b11101011011001111001011100), 
- "Scary polynoms");
-
+    assertEqual(
+        poly_multiple(_reflect_int32(0xDEADBEEF),
+                      _reflect_int32(0xBADDCAFE)),
+        _reflect_int32(0b11101011011001111001011100),
+        "Scary polynoms");
 
     printf("\n");
 
