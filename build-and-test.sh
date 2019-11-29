@@ -14,12 +14,14 @@ echo "Building executable"
 gcc -Wall -o main.out main.c -lpthread
 
 
+DIR=`mktemp -d`
+
 for fFull in `ls test/*`; do
   f=`basename "${fFull}"`
   echo "==== Testing $f file ===="
-  ./main.out "test/$f" "/tmp/out-$f"
-  cat "/tmp/out-$f" | gzip -d > "/tmp/out-uncompressed-$f"
-  cmp "test/$f" "/tmp/out-uncompressed-$f"
+  ./main.out "test/$f" "$DIR/$f.gz"
+  cat "$DIR/$f.gz" | gzip -d > "$DIR/$f.raw"
+  cmp "test/$f" "$DIR/$f.raw"
   echo ""
 done
 
