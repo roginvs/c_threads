@@ -505,6 +505,11 @@ int crc32_test()
                 "Crc blocks 2+16+2");
 
     assertEqual(CRC32_INITIAL, 0x0, "CRC32_INITIAL is zero");
+
+    // assertEqual(crc32_finallize(crc32_partial_block(NULL, 0, 0, 0), 0), crc32(NULL, 0), "Zero length crc");
+
+    //  assertEqual(crc32_finallize(crc32_partial_block(data4, 1, 0, 0), 1), crc32(data4, 1), "One byte length crc");
+
     /*
     printf("Testing crc by parts\n");
 

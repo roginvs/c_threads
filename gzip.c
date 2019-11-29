@@ -167,12 +167,14 @@ void gzip(uint8_t *input_buf, uint32_t input_buf_len, uint32_t threads_count, wr
         printf("No input stream, writing zero-length block\n");
         uint8_t zero_length_block[] = {1, 0, 0, 0xFF, 0xFF};
         write(zero_length_block, 5, write_user_data);
+        crc = crc32_partial_block(NULL, 0, 0, 0);
     }
 
     printf("All threads are done\n");
     uint32_t *footer = malloc(8);
 
-    footer[0] = crc32_finallize(crc);
+    // Currently crc combining does not support small files
+    footer[0] = input_buf_len > 4 ? crc32_finallize(crc) : crc32(input_buf, input_buf_len);
     footer[1] = input_buf_len;
     write((uint8_t *)footer, 8, write_user_data);
     free(footer);

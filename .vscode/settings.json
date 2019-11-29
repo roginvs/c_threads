@@ -4,6 +4,10 @@
         "generic_crc.h": "c",
         "fcntl.h": "c",
         "stdint.h": "c",
-        "algorithm": "c"
+        "algorithm": "c",
+        "__locale": "c",
+        "__string": "c",
+        "string": "c",
+        "string_view": "c"
     }
 }

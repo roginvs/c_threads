@@ -194,25 +194,31 @@ uint32_t crc32(const uint8_t *data, uint32_t length)
 uint32_t crc32_partial_block(const uint8_t *data, uint32_t block_length, uint32_t bytes_before, uint32_t bytes_after)
 {
 
+       // printf("crc32_partial_block\n");
+
        uint32_t crc = 0x0;
 
        for (uint32_t i = 0; i < 4 && i < block_length; i++)
        {
               uint8_t really_first_bytes = bytes_before + i < 4;
               uint8_t next_byte = really_first_bytes ? data[i] ^ 0xFF : data[i];
-              // printf("Adding char possibly xored '%c' really_first_bytes=%i\n", next_byte, really_first_bytes);
+              // printf("Adding char val = '%02x' xored=%i\n", next_byte, really_first_bytes);
               poly_reminder_step(next_byte, &crc);
        }
        for (uint32_t i = 4; i < block_length; i++)
        {
               uint8_t next_byte = data[i];
-              //  printf("Adding char plain '%c'\n", next_byte);
+              // printf("Adding char plain '%c'\n", next_byte);
               poly_reminder_step(next_byte, &crc);
        };
 
        // printf("Partial block bytes_after=%i\n", bytes_after);
 
-       uint32_t crc_shift = power_of_n(bytes_after + 4);
+       uint32_t total_length = bytes_before + block_length + bytes_after;
+       uint8_t shift_power = total_length >= 4 ? 4 : total_length;
+
+       // printf("Shift power is %i\n", shift_power);
+       uint32_t crc_shift = power_of_n(bytes_after + shift_power);
 
        crc = poly_multiple(crc, crc_shift);
 
@@ -231,4 +237,4 @@ uint32_t crc32_block_combine(uint32_t crc1, uint32_t crc2)
 uint32_t crc32_finallize(uint32_t crc)
 {
        return crc ^ 0xFFFFFFFF;
-}
+};
