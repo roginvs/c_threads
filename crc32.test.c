@@ -133,7 +133,7 @@ int crc32_test()
     };
     printf("Table done\n");
 
-/*
+
     uint32_t crc = 0;
     uint8_t data[8] = {0};
     _clean(data, 8);
@@ -158,6 +158,7 @@ int crc32_test()
         return 1;
     }
 
+/*
     // Add final xor
     crc = 0x0;
     _clean(data, 8);
