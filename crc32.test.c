@@ -157,7 +157,7 @@ int crc32_test()
     uint32_t crc = 0;
     uint8_t data[8] = {0};
     _clean(data, 8);
-    crc = poly_reminder(data, 8);
+    crc = poly_remainder(data, 8);
     if (crc != 0)
     {
         printf("Err %08x\n", crc);
@@ -171,7 +171,7 @@ int crc32_test()
     data[1] = _reverse_bits[0x65];
     data[2] = _reverse_bits[0x6b];
     data[3] = _reverse_bits[0x0a];
-    crc = poly_reminder(data, 8);
+    crc = poly_remainder(data, 8);
     if (crc != _reflect_int32(0x5F2FC346))
     {
         printf("Crc 1 err %08x\n", crc);
@@ -186,7 +186,7 @@ int crc32_test()
     data[1] = 0x65;
     data[2] = 0x6b;
     data[3] = 0x0a;
-    poly_reminder(data, 8, &crc);
+    poly_remainder(data, 8, &crc);
     crc = crc ^ 0xFFFFFFFF;
     if (crc != 0xA0D03CB9)
     {
@@ -205,7 +205,7 @@ int crc32_test()
     data[1] = data[1] ^ 0xFF;
     data[2] = data[2] ^ 0xFF;
     data[3] = data[3] ^ 0xFF;
-    poly_reminder(data, 8, &crc);
+    poly_remainder(data, 8, &crc);
     crc = crc ^ 0xFFFFFFFF;
     if (crc != 0x67D4E1C2)
     {
@@ -224,7 +224,7 @@ int crc32_test()
     data[1] = data[1] ^ 0xFF;
     data[2] = data[2] ^ 0xFF;
     data[3] = data[3] ^ 0xFF;
-    poly_reminder(data, 8, &crc);
+    poly_remainder(data, 8, &crc);
     crc = crc ^ 0xFFFFFFFF;
     if (crc != 0xE5BFC5A7)
     {
@@ -243,7 +243,7 @@ int crc32_test()
     data[1] = data[1] ^ 0xFF;
     data[2] = data[2] ^ 0xFF;
     data[3] = data[3] ^ 0xFF;
-    poly_reminder(data, 8, &crc);
+    poly_remainder(data, 8, &crc);
     crc = crc ^ 0xFFFFFFFF;
     crc = reflect_int32(crc);
 
@@ -253,7 +253,7 @@ int crc32_test()
         return 1;
     }
 
-    printf("Poly reminder is fine\n");
+    printf("Poly remainder is fine\n");
 
     data[0] = 0x6b; // 6b656b0a
     data[1] = 0x65;
@@ -419,41 +419,41 @@ int crc32_test()
     };
 
     assertEqual(
-        poly_reminder(abc, 4),
+        poly_remainder(abc, 4),
         _reflect_int32(0b11011110101011011011111011101111), "Poly division 4");
 
     assertEqual(
-        poly_reminder(abc, 5),
+        poly_remainder(abc, 5),
         _reflect_int32(0b10000000101010110000010001011001), "Poly division 5");
 
     assertEqual(
-        poly_reminder(abc, 6),
+        poly_remainder(abc, 6),
         _reflect_int32(0b11000010000010001011100100110011), "Poly division 6");
 
     assertEqual(
-        poly_reminder(abc, 8),
+        poly_remainder(abc, 8),
         _reflect_int32(0b11111100000000110000110110011101), "Poly division 8");
 
     assertEqual(
-        poly_reminder(abc, 10),
+        poly_remainder(abc, 10),
         _reflect_int32(0b111100100010101010001100101110), "Poly division 10");
 
     assertEqual(
-        poly_multiple(poly_reminder(abc, 5), power_of_n(5)) ^
-            poly_reminder(abc + 5, 5),
-        poly_reminder(abc, 10), "Poly parts 5+5");
+        poly_multiple(poly_remainder(abc, 5), power_of_n(5)) ^
+            poly_remainder(abc + 5, 5),
+        poly_remainder(abc, 10), "Poly parts 5+5");
 
     assertEqual(
-        poly_multiple(poly_reminder(abc, 4), power_of_n(8)) ^
-            poly_multiple(poly_reminder(abc + 4, 4), power_of_n(4)) ^
-            poly_reminder(abc + 8, 4),
-        poly_reminder(abc, 12), "Poly parts 4+4+4");
+        poly_multiple(poly_remainder(abc, 4), power_of_n(8)) ^
+            poly_multiple(poly_remainder(abc + 4, 4), power_of_n(4)) ^
+            poly_remainder(abc + 8, 4),
+        poly_remainder(abc, 12), "Poly parts 4+4+4");
 
     assertEqual(
-        poly_multiple(poly_reminder(abc, 4), power_of_n(6)) ^
-            poly_multiple(poly_reminder(abc + 4, 4), power_of_n(2)) ^
-            poly_reminder(abc + 8, 2),
-        poly_reminder(abc, 10), "Poly parts 4+4+2");
+        poly_multiple(poly_remainder(abc, 4), power_of_n(6)) ^
+            poly_multiple(poly_remainder(abc + 4, 4), power_of_n(2)) ^
+            poly_remainder(abc + 8, 2),
+        poly_remainder(abc, 10), "Poly parts 4+4+2");
 
     printf("Testing crc combining\n");
     data[0] = 0x6b ^ 0xFF; // 6b656b0a
@@ -462,7 +462,7 @@ int crc32_test()
     data[3] = 0x0a ^ 0xFF;
     // crc == e5a3fda7
     assertEqual(
-        0xFFFFFFFF ^ poly_multiple(poly_reminder(data, 4), power_of_n(4)), 0xe5a3fda7, "Crc combining 1");
+        0xFFFFFFFF ^ poly_multiple(poly_remainder(data, 4), power_of_n(4)), 0xe5a3fda7, "Crc combining 1");
 
     uint8_t data4[] = "My name is Vasilii!";
     uint8_t data4_xored[4] = {data4[0] ^ 0xFF, data4[1] ^ 0xFF, data4[2] ^ 0xFF, data4[3] ^ 0xFF};
@@ -470,7 +470,7 @@ int crc32_test()
     assertEqual(
         0xFFFFFFFF ^
             poly_multiple(
-                poly_reminder(data4_xored, 4),
+                poly_remainder(data4_xored, 4),
                 power_of_n(4)),
 
         crc32(data4, 4),
@@ -479,11 +479,11 @@ int crc32_test()
     assertEqual(
         0xFFFFFFFF ^
             poly_multiple(
-                poly_reminder(data4_xored, 4),
+                poly_remainder(data4_xored, 4),
                 power_of_n(24 - 4)) ^
 
             poly_multiple(
-                poly_reminder(data4 + 4, 16),
+                poly_remainder(data4 + 4, 16),
                 power_of_n(24 - 4 - 16)),
         crc32(data4, 20), "Crc combining 4");
 

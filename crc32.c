@@ -6,13 +6,12 @@ uint32_t table[0x100];
 // 0x04C11DB7 but all bits are reversed
 uint32_t poly = 0xEDB88320;
 
+/** Calculates one byte for table crc */
 uint32_t _crc32_for_byte(uint8_t byte)
 {
        uint32_t result = 0;
 
        uint8_t poly_high_byte = *((uint8_t *)&poly);
-
-       //  [ ] [ ] [ ] [ ]
 
        // printf("Table for byte 0x%02x\n", byte);
 
@@ -38,6 +37,9 @@ uint32_t _crc32_for_byte(uint8_t byte)
        return result;
 }
 
+/** 
+ * Call me in startup! 
+ */
 void init_crc_table()
 {
        for (uint32_t i = 0; i < 0x100; i++)
@@ -47,7 +49,7 @@ void init_crc_table()
 }
 
 /** Do a one-byte polynom division */
-void poly_reminder_step(uint8_t next_byte, uint32_t *crc)
+void poly_remainder_step(uint8_t next_byte, uint32_t *crc)
 {
        uint8_t shifted_byte = *((uint8_t *)crc);
 
@@ -67,13 +69,13 @@ void poly_reminder_step(uint8_t next_byte, uint32_t *crc)
        // And then xor with table value from shifted byte
        *crc = *crc ^ xoring;
 }
-uint32_t poly_reminder(const uint8_t *data, uint32_t n_bytes)
+uint32_t poly_remainder(const uint8_t *data, uint32_t n_bytes)
 {
        uint32_t crc = 0;
        for (uint32_t i = 0; i < n_bytes; i++)
        {
               uint8_t next_byte = data[i];
-              poly_reminder_step(next_byte, &crc);
+              poly_remainder_step(next_byte, &crc);
        }
        return crc;
 }
@@ -176,17 +178,17 @@ uint32_t crc32(const uint8_t *data, uint32_t length)
        for (uint32_t i = 0; i < 4 && i < length; i++)
        {
               uint8_t next_byte = data[i] ^ 0xFF;
-              poly_reminder_step(next_byte, &crc);
+              poly_remainder_step(next_byte, &crc);
        }
        for (uint32_t i = 4; i < length; i++)
        {
               uint8_t next_byte = data[i];
-              poly_reminder_step(next_byte, &crc);
+              poly_remainder_step(next_byte, &crc);
        };
-       poly_reminder_step(length <= 3 ? 0xFF : 0x00, &crc);
-       poly_reminder_step(length <= 2 ? 0xFF : 0x00, &crc);
-       poly_reminder_step(length <= 1 ? 0xFF : 0x00, &crc);
-       poly_reminder_step(length <= 0 ? 0xFF : 0x00, &crc);
+       poly_remainder_step(length <= 3 ? 0xFF : 0x00, &crc);
+       poly_remainder_step(length <= 2 ? 0xFF : 0x00, &crc);
+       poly_remainder_step(length <= 1 ? 0xFF : 0x00, &crc);
+       poly_remainder_step(length <= 0 ? 0xFF : 0x00, &crc);
        crc = crc ^ 0xFFFFFFFF;
        return crc;
 }
@@ -203,13 +205,13 @@ uint32_t crc32_partial_block(const uint8_t *data, uint32_t block_length, uint32_
               uint8_t really_first_bytes = bytes_before + i < 4;
               uint8_t next_byte = really_first_bytes ? data[i] ^ 0xFF : data[i];
               // printf("Adding char val = '%02x' xored=%i\n", next_byte, really_first_bytes);
-              poly_reminder_step(next_byte, &crc);
+              poly_remainder_step(next_byte, &crc);
        }
        for (uint32_t i = 4; i < block_length; i++)
        {
               uint8_t next_byte = data[i];
               // printf("Adding char plain '%c'\n", next_byte);
-              poly_reminder_step(next_byte, &crc);
+              poly_remainder_step(next_byte, &crc);
        };
 
        // printf("Partial block bytes_after=%i\n", bytes_after);
