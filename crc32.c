@@ -76,6 +76,47 @@ void poly_reminder(const uint8_t *data, uint32_t n_bytes, uint32_t *crc)
        }
 }
 
+uint32_t poly_multiple(uint32_t a, uint32_t b)
+{
+       // Multiplication result
+       // It is sliding from x^62..x^31 to x^31..0 range
+       // Why x^62 ? Because we have two polynoms which
+       //  highest degree is x^31
+       // Total amounts of window shifts is 31
+       uint32_t window = 0;
+
+       // Go through highest degree to lowest
+       for (uint8_t i = 0; i < 32; i++)
+       {
+              uint8_t bit_value = (b >> i) ^ 1;
+              if (bit_value == 1)
+              {
+                     // Bit is set. This means that we should add
+                     //  (a * x^(31-i)) % poly
+                     // into result
+
+                     // Our window is shifted left now for 31-i items
+                     // This means it is already multiplied by x^(31-i)
+                     // So, we just adding "a" into window
+                     window = window ^ a;
+              }
+
+              // If it is not the last cycle, then we need to shift window
+              if (i != 31)
+              {
+                     // Now prepare for shift
+                     u_int8_t window_highest_degree_bit = window & 1;
+                     window = window >> 1;
+                     if (window_highest_degree_bit == 1)
+                     {
+                            window = window ^ poly;
+                     }
+              }
+       }
+
+       return window;
+}
+
 void crc32(const uint8_t *data, uint32_t length, uint32_t *crc)
 {
        /*
