@@ -24,36 +24,45 @@ uint8_t _reverse_bits[] =
 /** Reverse bit in while 32-bit variable */
 uint32_t _reflect_int32(uint32_t in)
 {
-       uint32_t r = in;
-       *((uint8_t *)(&r) + 0) = _reverse_bits[*((uint8_t *)(&r) + 0)];
-       *((uint8_t *)(&r) + 1) = _reverse_bits[*((uint8_t *)(&r) + 1)];
-       *((uint8_t *)(&r) + 2) = _reverse_bits[*((uint8_t *)(&r) + 2)];
-       *((uint8_t *)(&r) + 3) = _reverse_bits[*((uint8_t *)(&r) + 3)];
+    uint32_t r = in;
+    *((uint8_t *)(&r) + 0) = _reverse_bits[*((uint8_t *)(&r) + 0)];
+    *((uint8_t *)(&r) + 1) = _reverse_bits[*((uint8_t *)(&r) + 1)];
+    *((uint8_t *)(&r) + 2) = _reverse_bits[*((uint8_t *)(&r) + 2)];
+    *((uint8_t *)(&r) + 3) = _reverse_bits[*((uint8_t *)(&r) + 3)];
 
-       uint8_t t;
-       t = *((uint8_t *)(&r) + 0);
-       *((uint8_t *)(&r) + 0) = *((uint8_t *)(&r) + 3);
-       *((uint8_t *)(&r) + 3) = t;
+    uint8_t t;
+    t = *((uint8_t *)(&r) + 0);
+    *((uint8_t *)(&r) + 0) = *((uint8_t *)(&r) + 3);
+    *((uint8_t *)(&r) + 3) = t;
 
-       t = *((uint8_t *)(&r) + 1);
-       *((uint8_t *)(&r) + 1) = *((uint8_t *)(&r) + 2);
-       *((uint8_t *)(&r) + 2) = t;
-       return r;
+    t = *((uint8_t *)(&r) + 1);
+    *((uint8_t *)(&r) + 1) = *((uint8_t *)(&r) + 2);
+    *((uint8_t *)(&r) + 2) = t;
+    return r;
 }
 
 /** Just another memset */
 void _clean(uint8_t *data, uint32_t len)
 {
-       for (uint32_t i = 0; i < len; ++i)
-       {
-              data[i] = 0;
-       }
+    for (uint32_t i = 0; i < len; ++i)
+    {
+        data[i] = 0;
+    }
 }
 
+#define assertEqual(a, b, msg)                \
+    if (a != b)                               \
+    {                                         \
+        printf("Err: ");                      \
+        printf(msg);                          \
+        printf(" A=0x%08x B=0x%08x\n", a, b); \
+        return 100;                           \
+    };
 int crc32_test()
 {
     printf("Checking poly\n");
-    if (_reflect_int32(poly) != 0x04C11DB7) {
+    if (_reflect_int32(poly) != 0x04C11DB7)
+    {
         printf("Wrong poly\n");
         return 20;
     };
@@ -131,7 +140,6 @@ int crc32_test()
        }
        */
 
-    
     printf("Crc tests are fine\n");
     printf("Creating table\n");
     init_crc_table();
@@ -141,7 +149,6 @@ int crc32_test()
         return 1;
     };
     printf("Table done\n");
-
 
     uint32_t crc = 0;
     uint8_t data[8] = {0};
@@ -167,7 +174,7 @@ int crc32_test()
         return 1;
     }
 
-/*
+    /*
     // Add final xor
     crc = 0x0;
     _clean(data, 8);
@@ -282,9 +289,17 @@ int crc32_test()
 
     printf("crc32 s fine\n");
 
+    printf("Tesing poly multiplication\n");
+    if (poly_multiple(_reflect_int32(0b0), _reflect_int32(0b0)) != _reflect_int32(0b0))
+    {
+        printf("Poly multiple err 50\n");
+        return 50;
+    };
+
+    assertEqual(poly_multiple(_reflect_int32(0b1), _reflect_int32(0b1)), _reflect_int32(0b1), "");
+
     printf("\n");
 
-    
     return 0;
 
     // http://www.sunshine2k.de/coding/javascript/crc/crc_js.html

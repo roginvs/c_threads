@@ -3,6 +3,7 @@
     "files.associations": {
         "generic_crc.h": "c",
         "fcntl.h": "c",
-        "stdint.h": "c"
+        "stdint.h": "c",
+        "algorithm": "c"
     }
 }
