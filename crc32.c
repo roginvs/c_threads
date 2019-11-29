@@ -110,7 +110,7 @@ uint32_t poly_multiple(uint32_t a, uint32_t b)
               if (i != 31)
               {
                      // Now prepare for shift
-                     u_int8_t window_highest_degree_bit = window & 1;
+                     uint8_t window_highest_degree_bit = window & 1;
                      window = window >> 1;
                      if (window_highest_degree_bit == 1)
                      {
