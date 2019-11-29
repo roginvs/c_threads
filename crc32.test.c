@@ -322,8 +322,15 @@ int crc32_test()
 
     assertEqual(poly_multiple(
                     _reflect_int32(0b10000000 << 24 ^ 0b10000000 << 22),
-                    _reflect_int32(0b10000000)),
-                (poly >> 6) ^ poly ^ poly >> 4, "(x^31 + x^29) * x^6");
+                    _reflect_int32(0b1)),
+                _reflect_int32((0b10000000 << 24 ^ 0b10000000 << 22)),
+                "(x^31 + x^29) * (1)");
+
+    assertEqual(poly_multiple(
+                    _reflect_int32(0b10000000 << 24 ^ 0b10000000 << 22),
+                    _reflect_int32(0b10000001)),
+                (poly >> 6) ^ poly ^ poly >> 4 ^ _reflect_int32(0b10000000 << 24 ^ 0b10000000 << 22),
+                "(x^31 + x^29) * (x^6 + 1)");
 
     /*
         a = 0xDEADBEEF = 0b11011110101011011011111011101111;
