@@ -157,7 +157,7 @@ int crc32_test()
     uint32_t crc = 0;
     uint8_t data[8] = {0};
     _clean(data, 8);
-    poly_reminder(data, 8, &crc);
+    crc = poly_reminder(data, 8);
     if (crc != 0)
     {
         printf("Err %08x\n", crc);
@@ -171,7 +171,7 @@ int crc32_test()
     data[1] = _reverse_bits[0x65];
     data[2] = _reverse_bits[0x6b];
     data[3] = _reverse_bits[0x0a];
-    poly_reminder(data, 8, &crc);
+    crc = poly_reminder(data, 8);
     if (crc != _reflect_int32(0x5F2FC346))
     {
         printf("Crc 1 err %08x\n", crc);
@@ -389,16 +389,84 @@ int crc32_test()
 
     assertEqual(_reflect_int32(power_of_n(7)), 0b11011100011011011001101010110111, "x^(7*8)");
 
+    printf("Testing poly combine\n");
+
+    /*
+        a = 0xDEADBEEF = 11011110101011011011111011101111;
+        b = 0xBADDCAFE = 10111010110111011100101011111110;
+        c = 0xFEEDFACE = 11111110111011011111101011001110;
+        
+        abc = 110111101010110110111110111011111011101011011101110010101111111011111110111011011111101011001110
+        
+        http://www.ee.unb.ca/cgi-bin/tervo/calc.pl?
+
+        crcPoly = 100000100110000010001110110110111
+    */
+
+    uint8_t abc[] = {
+        _reverse_bits[0b11011110], // 1
+        _reverse_bits[0b10101101],
+        _reverse_bits[0b10111110],
+        _reverse_bits[0b11101111],
+        _reverse_bits[0b10111010], // 5
+        _reverse_bits[0b11011101],
+        _reverse_bits[0b11001010],
+        _reverse_bits[0b11111110],
+        _reverse_bits[0b11111110], // 9
+        _reverse_bits[0b11101101],
+        _reverse_bits[0b11111010],
+        _reverse_bits[0b11001110],
+    };
+
+    assertEqual(
+        poly_reminder(abc, 4),
+        _reflect_int32(0b11011110101011011011111011101111), "Poly division 4");
+
+    assertEqual(
+        poly_reminder(abc, 5),
+        _reflect_int32(0b10000000101010110000010001011001), "Poly division 5");
+
+    assertEqual(
+        poly_reminder(abc, 6),
+        _reflect_int32(0b11000010000010001011100100110011), "Poly division 6");
+
+    assertEqual(
+        poly_reminder(abc, 8),
+        _reflect_int32(0b11111100000000110000110110011101), "Poly division 8");
+
+    assertEqual(
+        poly_reminder(abc, 10),
+        _reflect_int32(0b111100100010101010001100101110), "Poly division 10");
+
+    assertEqual(
+        poly_multiple(poly_reminder(abc, 5), power_of_n(5)) ^
+            poly_reminder(abc + 5, 5),
+        poly_reminder(abc, 10), "Poly parts 5+5");
+
+    assertEqual(
+        poly_multiple(poly_reminder(abc, 4), power_of_n(8)) ^
+            poly_multiple(poly_reminder(abc + 4, 4), power_of_n(4)) ^
+            poly_reminder(abc + 8, 4),
+        poly_reminder(abc, 12), "Poly parts 4+4+4");
+
+    assertEqual(
+        poly_multiple(poly_reminder(abc, 4), power_of_n(6)) ^
+            poly_multiple(poly_reminder(abc + 4, 4), power_of_n(2)) ^
+            poly_reminder(abc + 8, 2),
+        poly_reminder(abc, 10), "Poly parts 4+4+2");
+
+    /*
     printf("Testing crc by parts\n");
 
     uint8_t data3[] = "This is a test line ";
     crc = crc32(data3, 20);
 
-    uint32_t crc2 = crc32_block_combine(
+    uint32_t crc2 = crc32_finallize(crc32_block_combine(
         crc32_partial_block(data3, 10, 0, 10),
-        crc32_partial_block(data3, 10, 10, 0));
-
+        crc32_partial_block(data3 + 10, 10, 10, 0)));
+    
     assertEqual(crc, crc2, "Equal blocks");
+    */
 
     return 0;
 

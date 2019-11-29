@@ -67,13 +67,15 @@ void poly_reminder_step(uint8_t next_byte, uint32_t *crc)
        // And then xor with table value from shifted byte
        *crc = *crc ^ xoring;
 }
-void poly_reminder(const uint8_t *data, uint32_t n_bytes, uint32_t *crc)
+uint32_t poly_reminder(const uint8_t *data, uint32_t n_bytes)
 {
+       uint32_t crc = 0;
        for (uint32_t i = 0; i < n_bytes; i++)
        {
               uint8_t next_byte = data[i];
-              poly_reminder_step(next_byte, crc);
+              poly_reminder_step(next_byte, &crc);
        }
+       return crc;
 }
 
 uint32_t poly_multiple(uint32_t a, uint32_t b)
@@ -191,19 +193,25 @@ uint32_t crc32(const uint8_t *data, uint32_t length)
 
 uint32_t crc32_partial_block(const uint8_t *data, uint32_t block_length, uint32_t bytes_before, uint32_t bytes_after)
 {
-       uint8_t xor_border = bytes_before > 4 ? 4 : bytes_before;
+       // TODO: Fixme
+       uint8_t xor_border = bytes_before == 0 ? 4 : 0;
 
        uint32_t crc = 0x0;
+       printf("Partial block xor_border=%i\n", xor_border);
        for (uint32_t i = 0; i < xor_border && i < block_length; i++)
        {
               uint8_t next_byte = data[i] ^ 0xFF;
+              printf("Adding char xored '%c'\n", next_byte);
               poly_reminder_step(next_byte, &crc);
        }
        for (uint32_t i = xor_border; i < block_length; i++)
        {
               uint8_t next_byte = data[i];
+              printf("Adding char plain '%c'\n", next_byte);
               poly_reminder_step(next_byte, &crc);
        };
+
+       printf("Partial block bytes_after=%i\n", bytes_after);
 
        uint32_t crc_shift = power_of_n(bytes_after + 4);
 
@@ -211,18 +219,30 @@ uint32_t crc32_partial_block(const uint8_t *data, uint32_t block_length, uint32_
 
        if (bytes_after == 0)
        {
+
               uint32_t total_length = bytes_before + block_length;
+              printf("Last xoring\n");
+
+              printf("V=%02x\n", total_length <= 3 ? 0xFF : 0x00);
+              printf("V=%02x\n", total_length <= 2 ? 0xFF : 0x00);
+              printf("V=%02x\n", total_length <= 1 ? 0xFF : 0x00);
+              printf("V=%02x\n", total_length <= 0 ? 0xFF : 0x00);
+
               poly_reminder_step(total_length <= 3 ? 0xFF : 0x00, &crc);
               poly_reminder_step(total_length <= 2 ? 0xFF : 0x00, &crc);
               poly_reminder_step(total_length <= 1 ? 0xFF : 0x00, &crc);
               poly_reminder_step(total_length <= 0 ? 0xFF : 0x00, &crc);
        };
 
-       crc = crc ^ 0xFFFFFFFF;
        return crc;
 }
 
 uint32_t crc32_block_combine(uint32_t crc1, uint32_t crc2)
 {
        return crc1 ^ crc2;
+}
+
+uint32_t crc32_finallize(uint32_t crc)
+{
+       return crc ^ 0xFFFFFFFF;
 }
