@@ -312,6 +312,29 @@ int crc32_test()
 
     assertEqual(poly_multiple(_reflect_int32(0b10000000 << 24), _reflect_int32(0b10)), poly, "Multiply by x");
 
+  
+    /*
+        a = 0xDEADBEEF = 0b11011110101011011011111011101111;
+        b = 0xBADDCAFE = 0b10111010110111011100101011111110;
+        
+        
+        http://www.ee.unb.ca/cgi-bin/tervo/calc.pl?num=11011110101011011011111011101111&den=10111010110111011100101011111110&f=m&e=1&m=1
+
+        Product =
+        111111001110001100111000010110011010000100000010110100001001010
+
+crcPoly = 0b100110000010001110110110111;
+
+        Reminder = 0b11101011011001111001011100
+    */
+
+assertEqual(
+    poly_multiple(_reflect_int32(0xDEADBEEF),
+ _reflect_int32(0xBADDCAFE)), 
+ _reflect_int32(0b11101011011001111001011100), 
+ "Scary polynoms");
+
+
     printf("\n");
 
     return 0;
