@@ -50,15 +50,16 @@ void _clean(uint8_t *data, uint32_t len)
     }
 }
 
-#define assertEqual(a, b, msg)               \
-                                             \
-    if (a != b)                              \
-    {                                        \
-        printf("Err: ");                     \
-        printf(msg);                         \
-        printf("\n");                        \
-        printf("A=0x%08x B=0x%08x\n", a, b); \
-        return 100;                          \
+#define assertEqual(a, b, msg)                             \
+                                                           \
+    if (a != b)                                            \
+    {                                                      \
+        printf("\n");                                      \
+        printf("Asserted=0x%08x Obtained=0x%08x\n", b, a); \
+        printf("Error with: ");                            \
+        printf(msg);                                       \
+        printf("\n");                                      \
+        return 100;                                        \
     }
 ;
 int crc32_test()
@@ -299,7 +300,17 @@ int crc32_test()
         return 50;
     };
 
-    assertEqual(poly_multiple(_reflect_int32(0b1), _reflect_int32(0b1)), _reflect_int32(0b1), "");
+    assertEqual(poly_multiple(_reflect_int32(0b1), _reflect_int32(0b1)), _reflect_int32(0b1), "1*1");
+
+    assertEqual(poly_multiple(_reflect_int32(0b10), _reflect_int32(0b10)), _reflect_int32(0b100), "x*x");
+
+    // Numeric 0b11*0b11 = 1001
+    // Poly = x^2 + 1
+    assertEqual(poly_multiple(_reflect_int32(0b11), _reflect_int32(0b11)), _reflect_int32(0b101), "(x+1)*(x+1)");
+
+    assertEqual(poly_multiple(_reflect_int32(0b10000000 << 24), _reflect_int32(0b1)), 0x1, "Multiply by 1");
+
+    assertEqual(poly_multiple(_reflect_int32(0b10000000 << 24), _reflect_int32(0b10)), poly, "Multiply by x");
 
     printf("\n");
 
