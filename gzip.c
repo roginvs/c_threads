@@ -160,7 +160,7 @@ void gzip(uint8_t *input_buf, int32_t input_buf_len, int32_t threads_count, writ
     printf("All threads are done, calculating crc32 (TODO: use workers and CRC32 combine)\n");
     uint32_t *footer = malloc(8);
     init_crc_table();
-    crc32(input_buf, input_buf_len, footer);
+    footer[0] = crc32(input_buf, input_buf_len);
     footer[1] = input_buf_len;
     write((uint8_t *)footer, 8, write_user_data);
     free(footer);

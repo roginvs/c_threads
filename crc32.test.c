@@ -268,7 +268,7 @@ int crc32_test()
     */
 
     char data2[] = "Vasilii";
-    crc32((uint8_t *)data2, 7, &crc);
+    crc = crc32((uint8_t *)data2, 7);
     // crc32 <(echo -n 'Vasilii')
     if (crc != 0x2701c6cc)
     {
@@ -276,7 +276,7 @@ int crc32_test()
         return 1;
     }
 
-    crc32((uint8_t *)data2, 1, &crc);
+    crc = crc32((uint8_t *)data2, 1);
     // crc32 <(echo -n 'Vasilii')
     if (crc != 0x500a1b4c)
     {
@@ -284,7 +284,7 @@ int crc32_test()
         return 1;
     }
 
-    crc32(NULL, 0, &crc);
+    crc = crc32(NULL, 0);
     if (crc != 0x0)
     {
         printf("Crc 9 err %08x\n", crc);
@@ -389,7 +389,16 @@ int crc32_test()
 
     assertEqual(_reflect_int32(power_of_n(7)), 0b11011100011011011001101010110111, "x^(7*8)");
 
+    printf("Testing crc by parts\n");
 
+    uint8_t data3[] = "This is a test line ";
+    crc = crc32(data3, 20);
+
+    uint32_t crc2 = crc32_block_combine(
+        crc32_partial_block(data3, 10, 0, 10),
+        crc32_partial_block(data3, 10, 10, 0));
+
+    assertEqual(crc, crc2, "Equal blocks");
 
     return 0;
 
