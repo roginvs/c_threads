@@ -7,23 +7,23 @@
 #include "./crc32.c"
 #include "./gzip.chunk.c"
 
-typedef void (*write_handler)(uint8_t *buf, int32_t len, void *user_data);
+typedef void (*write_handler)(uint8_t *buf, uint32_t len, void *user_data);
 
 struct WorkerInfo
 {
-    int32_t id;
-    int32_t total_blocks_count;
-    int32_t input_buf_len;
+    uint32_t id;
+    uint32_t total_blocks_count;
+    uint32_t input_buf_len;
     uint8_t *input_buf;
 
-    int32_t *current_free_index;
+    uint32_t *current_free_index;
     pthread_mutex_t *m_current_free_index;
 
     pthread_mutex_t *m_worker_is_allowed_to_write;
     pthread_cond_t *cond_worker_is_allowed_to_write;
-    int32_t *worker_is_allowed_to_write;
+    uint32_t *worker_is_allowed_to_write;
 
-    int32_t *crc;
+    uint32_t *crc;
     write_handler write;
     void *user_data;
 };
@@ -38,6 +38,7 @@ void *worker(void *params)
 
     while (1)
     {
+        // TODO: Use another way
         int32_t chunk_id = -1;
         pthread_mutex_lock(info->m_current_free_index);
         if (*info->current_free_index < info->total_blocks_count)
@@ -54,9 +55,9 @@ void *worker(void *params)
 
         printf("Thread id=%i picked up chunk=%i\n", info->id, chunk_id);
 
-        int32_t outlen;
+        uint32_t outlen;
         uint8_t is_last = chunk_id == info->total_blocks_count - 1;
-        int32_t chunk_length = is_last ? info->input_buf_len - BLOCK_LEN * chunk_id : BLOCK_LEN;
+        uint32_t chunk_length = is_last ? info->input_buf_len - BLOCK_LEN * chunk_id : BLOCK_LEN;
 
         printf("Thread id=%i range is %i, len=%i\n", info->id, BLOCK_LEN * chunk_id, chunk_length);
         uint32_t crc_block;
@@ -75,7 +76,7 @@ void *worker(void *params)
         info->write(out, outlen, info->user_data);
         free(out);
 
-        info->crc = crc32_block_combine(info->crc, crc_block);
+        *info->crc = crc32_block_combine(*info->crc, crc_block);
 
         *info->worker_is_allowed_to_write += 1;
         pthread_mutex_unlock(info->m_worker_is_allowed_to_write);
@@ -83,16 +84,16 @@ void *worker(void *params)
     };
 }
 
-void gzip(uint8_t *input_buf, int32_t input_buf_len, int32_t threads_count, write_handler write, void *write_user_data)
+void gzip(uint8_t *input_buf, uint32_t input_buf_len, uint32_t threads_count, write_handler write, void *write_user_data)
 {
-    int32_t total_blocks_count = input_buf_len / BLOCK_LEN + (input_buf_len % BLOCK_LEN == 0 ? 0 : 1);
+    uint32_t total_blocks_count = input_buf_len / BLOCK_LEN + (input_buf_len % BLOCK_LEN == 0 ? 0 : 1);
     printf("Starting gzip len=%i blocks_count=%i\n", input_buf_len, total_blocks_count);
 
-    int32_t current_free_index = 0;
+    uint32_t current_free_index = 0;
 
-    int32_t worker_is_allowed_to_write = 0;
+    uint32_t worker_is_allowed_to_write = 0;
 
-    int32_t crc = CRC32_INITIAL;
+    uint32_t crc = CRC32_INITIAL;
 
     pthread_mutex_t m_current_free_index;
     pthread_mutex_t m_worker_is_allowed_to_write;

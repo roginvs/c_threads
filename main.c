@@ -17,7 +17,7 @@ gcc -o main.out main.c -lpthread && ./main.out test/hpmor_ru.html /tmp/a && (cat
 
 */
 
-void writer(uint8_t *buf, int32_t len, void *user_data)
+void writer(uint8_t *buf, uint32_t len, void *user_data)
 {
     printf("Writer is called len=%i\n", len);
     fwrite(buf, len, 1, (FILE *)user_data);
