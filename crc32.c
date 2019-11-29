@@ -193,18 +193,17 @@ uint32_t crc32(const uint8_t *data, uint32_t length)
 
 uint32_t crc32_partial_block(const uint8_t *data, uint32_t block_length, uint32_t bytes_before, uint32_t bytes_after)
 {
-       // TODO: Fixme
-       uint8_t xor_border = bytes_before == 0 ? 4 : 0;
 
        uint32_t crc = 0x0;
-       printf("Partial block xor_border=%i\n", xor_border);
-       for (uint32_t i = 0; i < xor_border && i < block_length; i++)
+
+       for (uint32_t i = 0; i < 4 && i < block_length; i++)
        {
-              uint8_t next_byte = data[i] ^ 0xFF;
-              printf("Adding char xored '%c'\n", next_byte);
+              uint8_t really_first_bytes = bytes_before + i < 4;
+              uint8_t next_byte = really_first_bytes ? data[i] ^ 0xFF : data[i];
+              printf("Adding char possibly xored '%c' really_first_bytes=%i\n", next_byte, really_first_bytes);
               poly_reminder_step(next_byte, &crc);
        }
-       for (uint32_t i = xor_border; i < block_length; i++)
+       for (uint32_t i = 4; i < block_length; i++)
        {
               uint8_t next_byte = data[i];
               printf("Adding char plain '%c'\n", next_byte);

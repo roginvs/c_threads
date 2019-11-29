@@ -490,7 +490,12 @@ int crc32_test()
     assertEqual(crc32_finallize(crc32_block_combine(
                     crc32_partial_block(data4, 10, 0, 10),
                     crc32_partial_block(data4 + 10, 10, 10, 0))),
-                crc32(data4, 20), "Equal blocks");
+                crc32(data4, 20), "Crc blocks 10+10");
+
+    assertEqual(crc32_finallize(crc32_block_combine(
+                    crc32_partial_block(data4, 2, 0, 18),
+                    crc32_partial_block(data4 + 2, 18, 2, 0))),
+                crc32(data4, 20), "Crc blocks 2+18");
 
     /*
     printf("Testing crc by parts\n");
