@@ -48,7 +48,9 @@ uint8_t *store_chunk(uint8_t *buf, uint32_t buf_len, uint32_t *outlen, uint8_t i
 uint8_t *compress_chunk(uint8_t *buf, uint32_t buf_len, uint32_t *outlen, uint32_t *crc, uint32_t bytes_before, uint32_t bytes_after)
 {
     uint8_t is_last = bytes_after == 0;
-
+    //
+    // Here is supposed to be the compressing logic
+    //
     uint8_t *compressed = store_chunk(buf, buf_len, outlen, is_last);
     *crc = crc32_partial_block(buf, buf_len, bytes_before, bytes_after);
     // printf("CRC in compress_chunk len=%i, before=%i, after=%i\n", buf_len, bytes_before, bytes_after);
