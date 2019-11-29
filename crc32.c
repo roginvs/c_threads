@@ -80,6 +80,7 @@ uint32_t poly_remainder(const uint8_t *data, uint32_t n_bytes)
        return crc;
 }
 
+/** Multiplication of two polynoms in GF2 */
 uint32_t poly_multiple(uint32_t a, uint32_t b)
 {
        // Multiplication result
@@ -129,7 +130,10 @@ uint32_t poly_multiple(uint32_t a, uint32_t b)
        return window;
 }
 
-uint32_t power_of_n(uint32_t power)
+/**
+ * Returns polynom in GF2 which equal x^(power*8)
+ * */
+uint32_t poly_power_of_n(uint32_t power)
 {
        if (power == 0)
        {
@@ -149,7 +153,7 @@ uint32_t power_of_n(uint32_t power)
               return 0b1 << (31 - 8 - 8 - 8);
        };
        uint32_t half_power = power / 2;
-       uint32_t poly_of_half_power = power_of_n(half_power);
+       uint32_t poly_of_half_power = poly_power_of_n(half_power);
        uint32_t poly_of_floor_even = poly_multiple(poly_of_half_power, poly_of_half_power);
        if (power % 2 == 0)
        {
@@ -157,10 +161,13 @@ uint32_t power_of_n(uint32_t power)
        }
        else
        {
-              return poly_multiple(poly_of_floor_even, power_of_n(1));
+              return poly_multiple(poly_of_floor_even, poly_power_of_n(1));
        }
 }
 
+/** 
+ * Single-threaded crc32
+ */
 uint32_t crc32(const uint8_t *data, uint32_t length)
 {
        /*
@@ -220,7 +227,7 @@ uint32_t crc32_partial_block(const uint8_t *data, uint32_t block_length, uint32_
        uint8_t shift_power = total_length >= 4 ? 4 : total_length;
 
        // printf("Shift power is %i\n", shift_power);
-       uint32_t crc_shift = power_of_n(bytes_after + shift_power);
+       uint32_t crc_shift = poly_power_of_n(bytes_after + shift_power);
 
        crc = poly_multiple(crc, crc_shift);
 
