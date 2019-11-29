@@ -50,14 +50,17 @@ void _clean(uint8_t *data, uint32_t len)
     }
 }
 
-#define assertEqual(a, b, msg)                \
-    if (a != b)                               \
-    {                                         \
-        printf("Err: ");                      \
-        printf(msg);                          \
-        printf(" A=0x%08x B=0x%08x\n", a, b); \
-        return 100;                           \
-    };
+#define assertEqual(a, b, msg)               \
+                                             \
+    if (a != b)                              \
+    {                                        \
+        printf("Err: ");                     \
+        printf(msg);                         \
+        printf("\n");                        \
+        printf("A=0x%08x B=0x%08x\n", a, b); \
+        return 100;                          \
+    }
+;
 int crc32_test()
 {
     printf("Checking poly\n");

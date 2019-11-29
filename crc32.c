@@ -85,10 +85,14 @@ uint32_t poly_multiple(uint32_t a, uint32_t b)
        // Total amounts of window shifts is 31
        uint32_t window = 0;
 
+       printf("Multiplication 0x%08x * 0x%08x\n", a, b);
+
        // Go through highest degree to lowest
        for (uint8_t i = 0; i < 32; i++)
        {
-              uint8_t bit_value = (b >> i) ^ 1;
+              uint8_t bit_value = (b >> i) & 1;
+
+              printf("Bit as pos %i value=%i\n", i, bit_value);
               if (bit_value == 1)
               {
                      // Bit is set. This means that we should add
