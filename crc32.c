@@ -217,22 +217,7 @@ uint32_t crc32_partial_block(const uint8_t *data, uint32_t block_length, uint32_
 
        crc = poly_multiple(crc, crc_shift);
 
-       if (bytes_after == 0)
-       {
-
-              uint32_t total_length = bytes_before + block_length;
-              printf("Last xoring\n");
-
-              printf("V=%02x\n", total_length <= 3 ? 0xFF : 0x00);
-              printf("V=%02x\n", total_length <= 2 ? 0xFF : 0x00);
-              printf("V=%02x\n", total_length <= 1 ? 0xFF : 0x00);
-              printf("V=%02x\n", total_length <= 0 ? 0xFF : 0x00);
-
-              poly_reminder_step(total_length <= 3 ? 0xFF : 0x00, &crc);
-              poly_reminder_step(total_length <= 2 ? 0xFF : 0x00, &crc);
-              poly_reminder_step(total_length <= 1 ? 0xFF : 0x00, &crc);
-              poly_reminder_step(total_length <= 0 ? 0xFF : 0x00, &crc);
-       };
+       printf("\n");
 
        return crc;
 }

@@ -478,7 +478,6 @@ int crc32_test()
 
     assertEqual(
         0xFFFFFFFF ^
-
             poly_multiple(
                 poly_reminder(data4_xored, 4),
                 power_of_n(24 - 4)) ^
@@ -486,8 +485,12 @@ int crc32_test()
             poly_multiple(
                 poly_reminder(data4 + 4, 16),
                 power_of_n(24 - 4 - 16)),
-
         crc32(data4, 20), "Crc combining 4");
+
+    assertEqual(crc32_finallize(crc32_block_combine(
+                    crc32_partial_block(data4, 10, 0, 10),
+                    crc32_partial_block(data4 + 10, 10, 10, 0))),
+                crc32(data4, 20), "Equal blocks");
 
     /*
     printf("Testing crc by parts\n");
