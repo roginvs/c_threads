@@ -71,14 +71,7 @@ void poly_reminder(const uint8_t *data, uint32_t n_bytes, uint32_t *crc)
        }
 }
 
-/** Just another memset */
-void _clean(uint8_t *data, uint32_t len)
-{
-       for (uint32_t i = 0; i < len; ++i)
-       {
-              data[i] = 0;
-       }
-}
+
 
 /** Reverse bit in while 32-bit variable */
 uint32_t reflect_int32(uint32_t in)

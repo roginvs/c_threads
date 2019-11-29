@@ -38,3 +38,65 @@ void init_crc_table()
               table[i] = _crc32_for_byte((uint8_t)i);
        }
 }
+
+
+/** Do a one-byte polynom division */
+void poly_reminder_step(uint8_t next_byte, uint32_t *crc)
+{
+       uint8_t shifted_byte = *((uint8_t *)crc);
+
+       uint32_t xoring = table[shifted_byte];
+
+       /*
+              printf("i=%i shifted_byte=%02x xoring=%02x next_byte=%02x curCrc=%08x shiftedCrc=%08x nextCrc=%08x\n",
+                     i, shifted_byte, xoring, next_byte,
+                     *crc,
+                     (*crc << 8) | next_byte,
+                     ((*crc << 8) | next_byte) ^ xoring);
+*/
+
+       // Shifting crc with next byte
+       *crc = (*crc >> 8) | (next_byte << 24);
+
+       *crc = *crc ^ xoring;
+}
+void poly_reminder(const uint8_t *data, uint32_t n_bytes, uint32_t *crc)
+{
+       for (uint32_t i = 0; i < n_bytes; i++)
+       {
+              uint8_t next_byte = data[i];
+              poly_reminder_step(next_byte, crc);
+       }
+}
+
+
+void crc32(const uint8_t *data, uint32_t length, uint32_t *crc)
+{
+       /*
+       In summary:
+
+       - (skip due to changed crc table) Reflect input bytes
+       - Add 4 zero bytes to input
+       - Xor first 4 input bytes with 0xFF
+       - Perform polynom division
+       - Xor final crc by 0xFFFFFFFF
+       - (skip due to changed crc accumulator) Reflect all bits (32) in crc 
+
+*/
+       *crc = 0x0;
+       for (uint32_t i = 0; i < 4 && i < length; i++)
+       {
+              uint8_t next_byte = data[i] ^ 0xFF;
+              poly_reminder_step(next_byte, crc);
+       }
+       for (uint32_t i = 4; i < length; i++)
+       {
+              uint8_t next_byte = data[i];
+              poly_reminder_step(next_byte, crc);
+       };
+       poly_reminder_step(length <= 3 ? 0xFF : 0x00, crc);
+       poly_reminder_step(length <= 2 ? 0xFF : 0x00, crc);
+       poly_reminder_step(length <= 1 ? 0xFF : 0x00, crc);
+       poly_reminder_step(length <= 0 ? 0xFF : 0x00, crc);
+       *crc = *crc ^ 0xFFFFFFFF;
+}

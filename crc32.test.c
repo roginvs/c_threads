@@ -41,6 +41,15 @@ uint32_t _reflect_int32(uint32_t in)
        return r;
 }
 
+/** Just another memset */
+void _clean(uint8_t *data, uint32_t len)
+{
+       for (uint32_t i = 0; i < len; ++i)
+       {
+              data[i] = 0;
+       }
+}
+
 int crc32_test()
 {
     printf("Checking poly\n");
@@ -147,12 +156,12 @@ int crc32_test()
     // Plain division
     crc = 0x0;
     _clean(data, 8);
-    data[0] = 0x6b; // 6b656b0a
-    data[1] = 0x65;
-    data[2] = 0x6b;
-    data[3] = 0x0a;
+    data[0] = _reverse_bits[0x6b]; // 6b656b0a
+    data[1] = _reverse_bits[0x65];
+    data[2] = _reverse_bits[0x6b];
+    data[3] = _reverse_bits[0x0a];
     poly_reminder(data, 8, &crc);
-    if (crc != 0x5F2FC346)
+    if (crc != _reflect_int32(0x5F2FC346))
     {
         printf("Crc 1 err %08x\n", crc);
         return 1;
@@ -245,6 +254,7 @@ int crc32_test()
         printf("Crc 6 err %08x\n", crc);
         return 1;
     }
+    */
 
     char data2[] = "Vasilii";
     crc32((uint8_t *)data2, 7, &crc);
@@ -274,7 +284,7 @@ int crc32_test()
 
     printf("\n");
 
-    */
+    
     return 0;
 
     // http://www.sunshine2k.de/coding/javascript/crc/crc_js.html
