@@ -85,14 +85,14 @@ uint32_t poly_multiple(uint32_t a, uint32_t b)
        // Total amounts of window shifts is 31
        uint32_t window = 0;
 
-       printf("Multiplication 0x%08x * 0x%08x\n", a, b);
+      // printf("Multiplication 0x%08x * 0x%08x\n", a, b);
 
        // Go through highest degree to lowest
        for (uint8_t i = 0; i < 32; i++)
        {
               uint8_t bit_value = (b >> i) & 1;
 
-              printf("Bit as pos %i value=%i\n", i, bit_value);
+              // printf("Bit as pos %i value=%i\n", i, bit_value);
               if (bit_value == 1)
               {
                      // Bit is set. This means that we should add
@@ -102,7 +102,8 @@ uint32_t poly_multiple(uint32_t a, uint32_t b)
                      // Our window is shifted left now for 31-i items
                      // This means it is already multiplied by x^(31-i)
                      // So, we just adding "a" into window
-                     printf("  Adding 'a' to window. Before=0x%08x after=0x%08x\n", window, window ^ a);
+                    
+                    // printf("  Adding 'a' to window. Before=0x%08x after=0x%08x\n", window, window ^ a);
                      window = window ^ a;
               }
 
@@ -111,17 +112,37 @@ uint32_t poly_multiple(uint32_t a, uint32_t b)
               {
                      // Now prepare for shift
                      uint8_t window_highest_degree_bit = window & 1;
-                     printf("  window=0x%08x shiftedWindow=0x%08x shiftedBit=%i\n", window, window >> 1, window_highest_degree_bit);
+                     // printf("  window=0x%08x shiftedWindow=0x%08x shiftedBit=%i\n", window, window >> 1, window_highest_degree_bit);
                      window = window >> 1;
                      if (window_highest_degree_bit == 1)
                      {
                             window = window ^ poly;
-                            printf("  windowAfterPolyXor=0x%08x\n", window);
+                           // printf("  windowAfterPolyXor=0x%08x\n", window);
                      }
               }
        }
 
        return window;
+}
+
+uint32_t power_of_n(uint32_t power) {
+       if (power == 0) {
+              return 0b1 << (31-0);;
+       } else if (power == 1) {
+              return 0b1 << (31-8);
+       } else if (power == 2) {
+              return 0b1 << (31-8-8);
+       } else if (power == 3) {
+              return 0b1 << (31-8-8-8);     
+       };
+       uint32_t half_power = power / 2;
+       uint32_t poly_of_half_power = power_of_n(half_power);
+       uint32_t poly_of_floor_even = poly_multiple(poly_of_half_power, poly_of_half_power);
+       if (power % 2 == 0) {
+              return poly_of_floor_even;
+       } else {
+              return poly_multiple(poly_of_floor_even, power_of_n(1));
+       }
 }
 
 void crc32(const uint8_t *data, uint32_t length, uint32_t *crc)

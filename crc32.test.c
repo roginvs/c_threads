@@ -351,8 +351,8 @@ int crc32_test()
                 "x^31 * x^31");
 
     /*
-        a = 0xDEADBEEF = 0b11011110101011011011111011101111;
-        b = 0xBADDCAFE = 0b10111010110111011100101011111110;
+        a = 0xDEADBEEF = 11011110101011011011111011101111;
+        b = 0xBADDCAFE = 10111010110111011100101011111110;
         
         
         http://www.ee.unb.ca/cgi-bin/tervo/calc.pl?num=11011110101011011011111011101111&den=10111010110111011100101011111110&f=m&e=1&m=1
@@ -360,9 +360,9 @@ int crc32_test()
         Product =
         111111001110001100111000010110011010000100000010110100001001010
 
-crcPoly = 0b100000100110000010001110110110111;
+        crcPoly = 100000100110000010001110110110111
 
-        Reminder = 0b10000100100110001011011010111000
+        Remainder = 0b10000100100110001011011010111000
     */
 
     assertEqual(
@@ -371,7 +371,25 @@ crcPoly = 0b100000100110000010001110110110111;
         _reflect_int32(0b10000100100110001011011010111000),
         "Scary polynoms");
 
-    printf("\n");
+    printf("Testing power\n");
+
+    assertEqual(_reflect_int32(power_of_n(0)), 0b1, "x^0");
+
+    assertEqual(_reflect_int32(power_of_n(1)), 0b100000000, "x^(1*8)");
+
+    assertEqual(_reflect_int32(power_of_n(2)), 0b10000000000000000, "x^(2*8)");
+
+    assertEqual(_reflect_int32(power_of_n(3)), 0b1000000000000000000000000, "x^(3*8)");
+
+    assertEqual(_reflect_int32(power_of_n(4)), 0b100110000010001110110110111, "x^(4*8)");
+
+    assertEqual(_reflect_int32(power_of_n(5)), 0b11010010000110011100000111011100, "x^(5*8)");
+
+    assertEqual(_reflect_int32(power_of_n(6)), 0b1110110001010110010000111, "x^(6*8)");
+
+    assertEqual(_reflect_int32(power_of_n(7)), 0b11011100011011011001101010110111, "x^(7*8)");
+
+
 
     return 0;
 
