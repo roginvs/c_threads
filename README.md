@@ -8,6 +8,9 @@
 ./build-and-test.sh
 ```
 
+Результат прогона тестов для последних коммитов
+можно посмотреть в ![Github Actions](https://github.com/roginvs/c_threads/actions)
+
 ## Запуск
 
 ```sh
