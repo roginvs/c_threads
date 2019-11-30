@@ -1,7 +1,5 @@
 # Эксперименты с реализацией gzip в threads
 
-![](https://github.com/roginvs/c_threads/workflows/ci_test/badge.svg)
-
 ## Сборка и прогон тестов (Linux или Mac)
 
 ```sh
@@ -9,7 +7,8 @@
 ```
 
 Результат прогона тестов для последних коммитов
-можно посмотреть в ![Github Actions](https://github.com/roginvs/c_threads/actions)
+можно посмотреть в ![Github Actions](./actions)
+![https://github.com/roginvs/c_threads/actions](https://github.com/roginvs/c_threads/workflows/ci_test/badge.svg)
 
 ## Запуск
 
