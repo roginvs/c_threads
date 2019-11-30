@@ -6,7 +6,19 @@ uint32_t table[0x100];
 // 0x04C11DB7 but all bits are reversed
 uint32_t poly = 0xEDB88320;
 
-/** Calculates one byte for table crc */
+/** 
+ * Calculates one byte for table crc.
+ * 
+ * We use reversed-bits order for each input byte.
+ * It means right bit is highest degree.
+ * Ex: 0b1 = x^7  , 0b10000000 = 1, 0b11000000 = x + 1
+ * 
+ * Same, we use reversed polynom representation for crc.
+ * It means all bits in crc32 are reversed, not in the byte.
+ * Ex: 0b1 = x^31 (because crc32 is 32 bits)
+ * Ex: 0x80000000 = 1 (most significant bit is set)
+ * 
+ * */
 uint32_t _crc32_for_byte(uint8_t byte)
 {
        uint32_t result = 0;
@@ -113,6 +125,9 @@ uint32_t poly_multiple(uint32_t a, uint32_t b)
               }
 
               // If it is not the last cycle, then we need to shift window
+              // TODO: We can optimize this by altering loop, i.e.
+              //  we can have a loop with 31 iteraction but do copy-pasted things before the loop.
+              //  This might bring some performance.
               if (i != 31)
               {
                      // Now prepare for shift
@@ -138,7 +153,6 @@ uint32_t poly_power_of_n(uint32_t power)
        if (power == 0)
        {
               return 0b1 << (31 - 0);
-              ;
        }
        else if (power == 1)
        {
