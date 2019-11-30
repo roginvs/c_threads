@@ -8,7 +8,8 @@
 
 Результат прогона тестов для последних коммитов
 можно посмотреть в [Github Actions](./../../actions)
-![https://github.com/roginvs/c_threads/actions](https://github.com/roginvs/c_threads/workflows/ci_test/badge.svg)
+
+![build status badge](https://github.com/roginvs/c_threads/workflows/ci_test/badge.svg)
 
 ## Запуск
 
