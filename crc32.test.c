@@ -146,7 +146,7 @@ int crc32_test()
 
     printf("Crc tests are fine\n");
     printf("Creating table\n");
-    init_crc_table();
+    сrc32_init_table();
     if (table[_reverse_bits[0x1]] != poly)
     {
         printf("Table fails\n");

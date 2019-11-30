@@ -40,7 +40,7 @@ uint32_t _crc32_for_byte(uint8_t byte)
 /** 
  * Call me in startup! 
  */
-void init_crc_table()
+void сrc32_init_table()
 {
        for (uint32_t i = 0; i < 0x100; i++)
        {
