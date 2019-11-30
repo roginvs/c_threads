@@ -57,7 +57,8 @@ typedef void (*write_handler)(
   /** Длинна данных */
   uint32_t len,
   /** Произвольный указатель */
-  void *user_data);
+  void *user_data
+);
 
 ```
 
