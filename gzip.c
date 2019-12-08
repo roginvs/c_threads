@@ -138,19 +138,20 @@ void gzip(uint8_t *input_buf, uint32_t input_buf_len, uint32_t threads_count, wr
     pthread_mutex_unlock(&m_current_free_index);
 
     printf("Writing header\n");
-    uint8_t *header = malloc(10);
-    header[0] = 0x1f; //ID1
-    header[1] = 0x8b; //ID2
-    header[2] = 8;    // Deflate
-    header[3] = 0;    // No flags
-    header[4] = 0;    // TODO time
-    header[5] = 0;    // TODO time
-    header[6] = 0;    // TODO time
-    header[7] = 0;    // TODO time
-    header[8] = 0;    // no XFL
-    header[9] = 3;    // Unix FS
+    uint8_t header[10] = {
+        0x1f, //ID1
+        0x8b, //ID2
+        8,    // Deflate
+        0,    // No flags
+        0,    // TODO time
+        0,    // TODO time
+        0,    // TODO time
+        0,    // TODO time
+        0,    // no XFL
+        3,    // Unix FS
+    };
+
     write(header, 10, write_user_data);
-    free(header);
 
     printf("Now allowing threads to write\n");
     pthread_mutex_unlock(&m_worker_is_allowed_to_write);
@@ -174,12 +175,9 @@ void gzip(uint8_t *input_buf, uint32_t input_buf_len, uint32_t threads_count, wr
     // So, here is small workaround
     crc = input_buf_len > 4 ? crc32_finallize(crc) : crc32(input_buf, input_buf_len);
 
-    uint32_t *footer = malloc(8);
+    uint32_t footer[2] = {crc, input_buf_len};
 
-    footer[0] = crc;
-    footer[1] = input_buf_len;
     write((uint8_t *)footer, 8, write_user_data);
-    free(footer);
 
     pthread_mutex_unlock(&m_worker_is_allowed_to_write);
 
